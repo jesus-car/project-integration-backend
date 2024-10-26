@@ -18,12 +18,12 @@ public class PropertyDTO implements IDTOEntity {
     private Long id;
     @NotBlank(message = Constants.NOT_BLANK)
     @Pattern(regexp = "^[A-Za-zÑn]+( [A-Za-zÑñ]+)*$",
-            message = "Name must contain only letters and single spaces between words")
+            message = "Must contain only letters and single spaces between words")
     @Size(max = 100, message = "Must be a maximum of 100 characters")
     private String name;
     @NotBlank(message = Constants.NOT_BLANK)
     @Pattern(regexp = "^[A-Za-zÑn]+( [A-Za-zÑñ]+)*$",
-            message = "Name must contain only letters and single spaces between words")
+            message = "Must contain only letters and single spaces between words")
     @Size(max = 512, message = "Must be a maximum of 512 characters")
     private String description;
     private BigDecimal pricePerNight;
@@ -34,7 +34,7 @@ public class PropertyDTO implements IDTOEntity {
     @Pattern(regexp = "^[A-Za-zÑn\\-#]+( [A-Za-zÑñ\\-#]+)*$",
             message = "Must contain only letters and single spaces between words " +
                     "and special characters like - or #")
-    @Size(max = 256, message = "Exact address must be a maximum of 256 characters")
+    @Size(max = 256, message = "Must be a maximum of 256 characters")
     private String exactAddress;
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
