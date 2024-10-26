@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class ProductFilterDTO{
+public class PropertyFilterDTO{
     private String name;
     private String description;
     private BigDecimal pricePerNight;

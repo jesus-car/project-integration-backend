@@ -1,7 +1,7 @@
 package com.dh.roomly.common;
 
 public enum Conflict {
-    GENERIC_PRODUCT_CONFLICT("There is a conflict with the product."),
+    GENERIC_PRODUCT_CONFLICT("There is a conflict with the property."),
     GENERIC_USER_CONFLICT("There is a conflict with the user."),
     GENERIC_BOOKING_CONFLICT("There is a conflict with the booking.");
 

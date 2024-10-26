@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductDTO implements IDTOEntity {
+public class PropertyDTO implements IDTOEntity {
     private Long id;
     @NotBlank(message = Constants.NOT_BLANK)
     @Pattern(regexp = "^[A-Za-zÑn]+( [A-Za-zÑñ]+)*$",

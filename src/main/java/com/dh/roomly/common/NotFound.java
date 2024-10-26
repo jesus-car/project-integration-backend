@@ -1,7 +1,7 @@
 package com.dh.roomly.common;
 
 public enum NotFound {
-    NOT_FOUND_PRODUCT("Product not found."),
+    NOT_FOUND_PRODUCT("Property not found."),
     NOT_FOUND_USER("User not found."),
     NOT_FOUND_BOOKING("Booking not found.");
 

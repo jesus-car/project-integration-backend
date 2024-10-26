@@ -1,8 +1,8 @@
 package com.dh.roomly.controller;
 
-import com.dh.roomly.dto.impl.ProductDTO;
-import com.dh.roomly.dto.filter.ProductFilterDTO;
-import com.dh.roomly.service.IProductService;
+import com.dh.roomly.dto.impl.PropertyDTO;
+import com.dh.roomly.dto.filter.PropertyFilterDTO;
+import com.dh.roomly.service.IPropertyService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -12,16 +12,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/products")
-public class ProductController {
+@RequestMapping("v1/properties")
+public class PropertyController {
     @Autowired
-    private IProductService iProductService;
+    private IPropertyService iPropertyService;
 
     @PostMapping("/filter")
-    public Page<ProductDTO> findAll(@RequestParam(defaultValue = "0") @Min(0) int page,
+    public Page<PropertyDTO> findAll(@RequestParam(defaultValue = "0") @Min(0) int page,
                                     @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size,
-                                    @RequestBody @Valid ProductFilterDTO filter){
-        return this.iProductService.findAll(filter, PageRequest.of(page, size));
+                                    @RequestBody @Valid PropertyFilterDTO filter){
+        return this.iPropertyService.findAll(filter, PageRequest.of(page, size));
     }
 
 }
