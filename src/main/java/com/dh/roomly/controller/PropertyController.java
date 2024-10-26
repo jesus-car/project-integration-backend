@@ -24,4 +24,9 @@ public class PropertyController {
         return this.iPropertyService.findAll(filter, PageRequest.of(page, size));
     }
 
+    @PostMapping("/new")
+    public PropertyDTO createProperty(@Valid @RequestBody PropertyDTO dto){
+        return iPropertyService.createProperty(dto);
+    }
+
 }

@@ -28,6 +28,13 @@ public class PropertyService implements IPropertyService {
         return property.map(propertyEntity -> (PropertyDTO) MappingDTO.convertToDto(propertyEntity, new PropertyDTO()));
     }
 
+    @Override
+    public PropertyDTO createProperty(PropertyDTO propertyDTO) {
+        PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
+        PropertyEntity savedProperty = iPropertyRepository.save(property);
+        return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
+    }
+
     private Specification<PropertyEntity> addFilters(PropertyFilterDTO filter){
         Specification<PropertyEntity> spec = Specification.where(null);
         if (Objects.nonNull(filter.getName())) {
