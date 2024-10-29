@@ -10,6 +10,8 @@ import lombok.experimental.SuperBuilder;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -56,4 +58,12 @@ public class PropertyEntity {
 
     @Column(name = "CATEGORY_ID", nullable = false)
     private Short categoryId;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "property_photo",
+            joinColumns = @JoinColumn(name = "property_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id")
+    )
+    private List<FileEntity> photos = new ArrayList<>();
 }

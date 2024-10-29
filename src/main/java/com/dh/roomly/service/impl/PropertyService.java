@@ -3,17 +3,24 @@ package com.dh.roomly.service.impl;
 import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
+import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.PropertyEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
+import com.dh.roomly.repository.IFileRepository;
 import com.dh.roomly.repository.IPropertyRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
+import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -21,6 +28,10 @@ public class PropertyService implements IPropertyService {
 
     @Autowired
     IPropertyRepository iPropertyRepository;
+    @Autowired
+    IFileRepository fileRepository;
+    @Autowired
+    IFileService fileService;
     
     @Override
     public Page<PropertyDTO> findAll(PropertyFilterDTO filter, Pageable pageable) {
@@ -31,10 +42,24 @@ public class PropertyService implements IPropertyService {
 
     @Override
     public PropertyDTO createProperty(PropertyDTO propertyDTO) {
+        PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
+        PropertyEntity savedProperty = iPropertyRepository.save(property);
+        return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
+    }
+
+    @Override
+    @Transactional
+    public PropertyDTO createPropertyWithPhotos(PropertyDTO propertyDTO, List<MultipartFile> files) throws IOException {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
+
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
+
+        List<FileEntity> fileEntities = fileService.saveFiles(files);
+        fileRepository.saveAll(fileEntities);
+        property.getPhotos().addAll(fileEntities);
+
         PropertyEntity savedProperty = iPropertyRepository.save(property);
         return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
     }
