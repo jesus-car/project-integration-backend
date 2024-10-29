@@ -1,61 +1,48 @@
 name: CI Demo
 
 on:
-  push:
-    branches:
-      - develop
+    push:
+        branches:
+            - develop
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    env:
-      EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-      EC2_URL: ${{ secrets.EC2_URL }}
-      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+    test:
+        runs-on: ubuntu-latest
+        env:
+            EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+            EC2_URL: ${{ secrets.EC2_URL }}
+            EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
 
-    steps:
-      - uses: actions/checkout@v4
-      - name: Muestra el contenido del directorio
-        run: ls -la
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: '21'
-      - run: java --version
-      - run: chmod +x mvnw
-      - name: Build with Maven
-        run: ./mvnw clean package --file pom.xml -DskipTests
-      - name: Listar jar
-        run: ls -la target
-      - name: Instalar docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ca-certificates curl
-          sudo install -m 0755 -d /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc
-          sudo chmod a+r /etc/apt/keyrings/docker.asc
-          echo \
-          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-      - name: Docker login
-        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build Docker image
-        run: docker build -t jesuscar/ci-demo .
-      - name: Push Docker image
-        run: docker push jesuscar/ci-demo
-      - name : SSH to EC2
-        run: |
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > primerkey.pem
-          chmod 400 "primerkey.pem"
-      - name: Deploy to EC2
-        run: |
-          ssh -i "primerkey.pem" -o StrictHostKeyChecking=no -t ubuntu@ec2-54-224-76-223.compute-1.amazonaws.com << 'EOF'
-            echo "Conectado a EC2"
-            sudo docker pull jesuscar/ci-demo
-            sudo docker stop backend-integration || true
-            sudo docker rm backend-integration || true
-            sudo docker run -d -p 8080:9000 --name backend-integration jesuscar/ci-demo
-          EOF
+        steps:
+            -   uses: actions/checkout@v4
+            -   name: Muestra el contenido del directorio
+                run: ls -la
+            -   uses: actions/setup-java@v4
+                with:
+                    distribution: 'corretto'
+                    java-version: '17'
+            -   run: chmod +x mvnw
+            -   name: Build with Maven
+                run: ./mvnw clean package --file pom.xml -DskipTests
+            -   name: Build & push Docker image
+                uses: mr-smithers-excellent/docker-build-push@v6
+                with:
+                    image: jesuscar/ci-demo
+                    tags: latest
+                    registry: docker.io
+                    dockerfile: Dockerfile
+                    username: ${{ secrets.DOCKERHUB_USERNAME }}
+                    password: ${{ secrets.DOCKERHUB_TOKEN }}
+            -   name: SSH to EC2
+                run: |
+                    echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > primerkey.pem
+                    chmod 400 "primerkey.pem"
+            -   name: Deploy to EC2
+                run: |
+                    ssh -i "primerkey.pem" -o StrictHostKeyChecking=no -t ubuntu@ec2-54-224-76-223.compute-1.amazonaws.com << 'EOF'
+                      echo "Conectado a EC2"
+                      sudo docker pull jesuscar/ci-demo
+                      sudo docker stop backend-integration || true
+                      sudo docker rm backend-integration || true
+                      sudo docker run -d -p 8080:9000 --name backend-integration jesuscar/ci-demo
+                    EOF
