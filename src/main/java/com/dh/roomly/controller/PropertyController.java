@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,8 +27,9 @@ public class PropertyController {
     }
 
     @PostMapping("/new")
-    public PropertyDTO createProperty(@Valid @RequestBody PropertyDTO dto){
-        return iPropertyService.createProperty(dto);
+    public ResponseEntity<PropertyDTO> createProperty(@Valid @RequestBody PropertyDTO dto) {
+        PropertyDTO createdProperty = iPropertyService.createProperty(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProperty);
     }
 
 }

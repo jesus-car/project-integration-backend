@@ -76,4 +76,9 @@ public class GlobalExceptionHandler {
                 .message(request.getDescription(Boolean.FALSE))
                 .build();
     }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Object> handleDuplicateResourceException(DuplicateResourceException exception, WebRequest request) {
+        return new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
+    }
 }

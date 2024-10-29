@@ -4,6 +4,7 @@ import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.entity.PropertyEntity;
+import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.repository.IPropertyRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IPropertyService;
@@ -30,6 +31,9 @@ public class PropertyService implements IPropertyService {
 
     @Override
     public PropertyDTO createProperty(PropertyDTO propertyDTO) {
+        if (iPropertyRepository.existsByName(propertyDTO.getName())) {
+            throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
+        }
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
         PropertyEntity savedProperty = iPropertyRepository.save(property);
         return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
