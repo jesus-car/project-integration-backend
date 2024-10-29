@@ -41,13 +41,6 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
-    public PropertyDTO createProperty(PropertyDTO propertyDTO) {
-        PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
-        PropertyEntity savedProperty = iPropertyRepository.save(property);
-        return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
-    }
-
-    @Override
     @Transactional
     public PropertyDTO createPropertyWithPhotos(PropertyDTO propertyDTO, List<MultipartFile> files) throws IOException {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {

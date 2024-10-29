@@ -2,6 +2,7 @@ package com.dh.roomly.controller;
 
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
+import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -30,16 +31,12 @@ public class PropertyController {
         return this.iPropertyService.findAll(filter, PageRequest.of(page, size));
     }
 
-    /*
-    @PostMapping("/new")
-    public PropertyDTO createProperty(@Valid @RequestBody PropertyDTO dto){
-        return iPropertyService.createProperty(dto);
-    }
-    */
-
     @PostMapping("/new")
     public ResponseEntity<PropertyDTO> createPropertyWithPhotos(@Valid @RequestPart("propertyDTO") PropertyDTO dto,
                                                                 @RequestParam("files") List<MultipartFile> images) throws IOException {
+        if (images == null || images.isEmpty() || images.stream().allMatch(MultipartFile::isEmpty)) {
+            throw new MissingImageException("At least one non-empty image must be provided.");
+        }
         PropertyDTO createdProperty = iPropertyService.createPropertyWithPhotos(dto, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProperty);
     }

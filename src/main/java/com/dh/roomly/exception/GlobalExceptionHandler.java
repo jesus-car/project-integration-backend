@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
 
 @Slf4j
 @ControllerAdvice
@@ -79,6 +80,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Object> handleDuplicateResourceException(DuplicateResourceException exception, WebRequest request) {
-        return new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(MissingImageException.class)
+    public ResponseEntity<Object> handleMissingImageException(MissingImageException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of(exception.getMessage()))
+                .message(request.getDescription(false))
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Object> handleMultipartException(MultipartException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of("File upload error", exception.getMessage()))
+                .message("Multipart request could not be processed.")
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+
+
 }
