@@ -15,8 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Imprimiendo algo
-        run: echo "hola mundo GA"
       - name: Muestra el contenido del directorio
         run: ls -la
       - uses: actions/setup-java@v4
