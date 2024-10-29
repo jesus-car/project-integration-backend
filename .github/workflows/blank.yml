@@ -39,7 +39,7 @@ jobs:
                     chmod 400 "primerkey.pem"
             -   name: Deploy to EC2
                 run: |
-                    ssh -i "primerkey.pem" -o StrictHostKeyChecking=no -t ubuntu@ec2-54-224-76-223.compute-1.amazonaws.com << 'EOF'
+                    ssh -i "primerkey.pem" -o StrictHostKeyChecking=no -t $EC2_USERNAME@$EC2_URL << 'EOF'
                       echo "Conectado a EC2"
                       sudo docker pull jesuscar/ci-demo
                       sudo docker stop backend-integration || true
