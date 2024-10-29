@@ -57,5 +57,5 @@ jobs:
             sudo docker pull jesuscar/ci-demo
             sudo docker stop backend-integration || true
             sudo docker rm backend-integration || true
-            sudo docker run -d -p 8080:8080 --name backend-integration jesuscar/ci-demo
+            sudo docker run -d -p 8080:9000 --name backend-integration jesuscar/ci-demo
           EOF
