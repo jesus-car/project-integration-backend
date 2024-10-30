@@ -21,4 +21,6 @@ public interface IPropertyService {
 
     @Transactional
     PropertyDTO createPropertyWithPhotos(PropertyDTO propertyDTO, List<MultipartFile> files) throws IOException;
+
+    List<PropertyDTO> findAllForAdmin(PropertyFilterDTO filter);
 }
