@@ -1,5 +1,6 @@
 package com.dh.roomly.service.impl;
 
+import com.dh.roomly.common.NotFound;
 import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
@@ -7,6 +8,7 @@ import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.PropertyEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.repository.IFileRepository;
+import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.IPropertyRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
@@ -34,6 +36,19 @@ public class PropertyService implements IPropertyService {
     @Autowired
     IFileService fileService;
     
+
+    @Override
+    public PropertyDTO findById(Long id) {
+        return (PropertyDTO) MappingDTO.convertToDto(
+                this.findPropertyEntityById(id), new PropertyDTO());
+    }
+
+    @Override
+    public void delete(Long id) {
+        this.findById(id);
+        this.iPropertyRepository.deleteById(String.valueOf(id));
+    }
+
     @Override
     public Page<PropertyDTO> findAll(PropertyFilterDTO filter, Pageable pageable) {
         Specification<PropertyEntity> specification = this.addFilters(filter);
@@ -65,6 +80,10 @@ public class PropertyService implements IPropertyService {
                 .map(property -> (PropertyDTO) MappingDTO.convertToDto(property, new PropertyDTO()))
                 .collect(Collectors.toList());
     }
+  
+    private PropertyEntity findPropertyEntityById(Long id){
+        return this.iPropertyRepository.findById(String.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(
+                NotFound.NOT_FOUND_PRODUCT.toString()));
 
     private Specification<PropertyEntity> addFilters(PropertyFilterDTO filter){
         Specification<PropertyEntity> spec = Specification.where(null);

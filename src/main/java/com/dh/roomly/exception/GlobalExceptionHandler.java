@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @ControllerAdvice
@@ -52,6 +53,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> badRequestValidationExceptions(
             MethodArgumentNotValidException exception, WebRequest request) {
         return new ResponseEntity<>(this.buildMultipleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> badRequestTypeMismatchExceptions(
+            MethodArgumentTypeMismatchException exception, WebRequest request) {
+        return new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
     }
 
     private ErrorDetailsDTO buildSingleErrorDetailsDTO(Exception exception, WebRequest request){
