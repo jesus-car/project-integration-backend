@@ -59,7 +59,7 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
-    public List<PropertyDTO> findAllForAdmin(PropertyFilterDTO filter) {
+    public List<PropertyDTO> findAllForAdmin() {
         List<PropertyEntity> properties = iPropertyRepository.findAll();
         return properties.stream()
                 .map(property -> (PropertyDTO) MappingDTO.convertToDto(property, new PropertyDTO()))
