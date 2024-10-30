@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class PropertyService implements IPropertyService {
@@ -70,6 +71,14 @@ public class PropertyService implements IPropertyService {
 
         PropertyEntity savedProperty = iPropertyRepository.save(property);
         return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
+    }
+
+    @Override
+    public List<PropertyDTO> findAllForAdmin() {
+        List<PropertyEntity> properties = iPropertyRepository.findAll();
+        return properties.stream()
+                .map(property -> (PropertyDTO) MappingDTO.convertToDto(property, new PropertyDTO()))
+                .collect(Collectors.toList());
     }
 
     private PropertyEntity findPropertyEntityById(Long id){
