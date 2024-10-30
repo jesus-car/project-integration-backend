@@ -12,6 +12,11 @@ import java.util.List;
 
 public interface IPropertyService {
 
+
+    PropertyDTO findById(Long id);
+
+    void delete(Long id);
+
     Page<PropertyDTO> findAll(PropertyFilterDTO filter, Pageable pageable);
 
     @Transactional
