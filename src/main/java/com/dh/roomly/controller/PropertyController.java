@@ -24,6 +24,11 @@ public class PropertyController {
     @Autowired
     private IPropertyService iPropertyService;
 
+    @DeleteMapping("/{propertyId}")
+    public void delete(@PathVariable("propertyId") Long id) {
+        this.iPropertyService.delete(id);
+    }
+
     @PostMapping("/filter")
     public Page<PropertyDTO> findAll(@RequestParam(defaultValue = "0") @Min(0) int page,
                                     @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size,
