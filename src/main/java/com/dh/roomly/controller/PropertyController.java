@@ -42,8 +42,8 @@ public class PropertyController {
     }
 
     @GetMapping("/admin/list")
-    public ResponseEntity<List<PropertyDTO>> findAllForAdmin(@RequestBody(required = false) PropertyFilterDTO filter) {
-        List<PropertyDTO> properties = this.iPropertyService.findAllForAdmin(filter);
+    public ResponseEntity<List<PropertyDTO>> findAllForAdmin() {
+        List<PropertyDTO> properties = this.iPropertyService.findAllForAdmin();
         return ResponseEntity.ok(properties);
     }
 
