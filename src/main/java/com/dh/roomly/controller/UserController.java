@@ -1,8 +1,8 @@
 package com.dh.roomly.controller;
 
 
-import com.dh.roomly.dto.impl.UserSaveRequest;
-import com.dh.roomly.dto.impl.UserSaveResponse;
+import com.dh.roomly.dto.impl.UserSaveInput;
+import com.dh.roomly.dto.impl.UserSaveOutput;
 import com.dh.roomly.service.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +21,17 @@ public class UserController {
     private final CompromisedPasswordChecker compromisedPasswordChecker;
 
     @PostMapping("/register")
-    public UserSaveResponse saveUser(@Valid @RequestBody UserSaveRequest userSaveRequest) {
-        CompromisedPasswordDecision decision = compromisedPasswordChecker.check(userSaveRequest.getPassword());
+    public UserSaveOutput saveUser(@Valid @RequestBody UserSaveInput userSaveInput) {
+        CompromisedPasswordDecision decision = compromisedPasswordChecker.check(userSaveInput.getPassword());
 
         if (decision.isCompromised()) {
             throw new IllegalArgumentException("Password is compromised");
         }
-        return userService.saveUser(userSaveRequest);
+        return userService.saveUser(userSaveInput);
     }
 
     @GetMapping("/{username}")
-    public UserSaveResponse getUser(@PathVariable String username) {
+    public UserSaveOutput getUser(@PathVariable String username) {
         log.info("Getting user with username: {}", username);
         return userService.getUser(username);
     }

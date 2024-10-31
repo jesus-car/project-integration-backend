@@ -14,11 +14,15 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSaveResponse implements IDTOEntity {
+public class UserSaveOutput implements IDTOEntity {
     private String firstName;
     private String lastName;
+    private String identificationNumber;
     private String email;
     private String username;
+    private String phoneNumber;
+    private String city;
+    private Long profilePhotoId;
     private LocalDateTime createdAt;
     private Set<Role> roles;
 }

@@ -1,8 +1,8 @@
 package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.RoleEnum;
-import com.dh.roomly.dto.impl.UserSaveRequest;
-import com.dh.roomly.dto.impl.UserSaveResponse;
+import com.dh.roomly.dto.impl.UserSaveInput;
+import com.dh.roomly.dto.impl.UserSaveOutput;
 import com.dh.roomly.entity.Role;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.repository.RoleRepository;
@@ -26,13 +26,17 @@ public class UserServiceImpl {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserSaveResponse saveUser(UserSaveRequest userSaveRequest) {
+    public UserSaveOutput saveUser(UserSaveInput userSaveInput) {
         UserEntity userEntity = UserEntity.builder()
-                .username(userSaveRequest.getUsername())
-                .password(userSaveRequest.getPassword())
-                .email(userSaveRequest.getEmail())
-                .firstName(userSaveRequest.getFirstName())
-                .lastName(userSaveRequest.getLastName())
+                .username(userSaveInput.getUsername())
+                .password(userSaveInput.getPassword())
+                .email(userSaveInput.getEmail())
+                .firstName(userSaveInput.getFirstName())
+                .lastName(userSaveInput.getLastName())
+                .identificationNumber(userSaveInput.getIdentificationNumber())
+                .typeId(Short.parseShort(userSaveInput.getTypeId()))
+                .phoneNumber(userSaveInput.getPhoneNumber())
+                .city(userSaveInput.getCity())
                 .isEnabled(true)
                 .isLocked(false)
                 .accountNonExpired(true)
@@ -42,7 +46,7 @@ public class UserServiceImpl {
         Set<Role> roles = new HashSet<>();
         roleRepository.findByName(RoleEnum.ROLE_USER).ifPresent(roles::add);
 
-        if(userEntity.isAdmin())
+        if (userEntity.isAdmin())
             roleRepository.findByName(RoleEnum.ROLE_ADMIN).ifPresent(roles::add);
 
         userEntity.setRoles(roles);
@@ -51,11 +55,14 @@ public class UserServiceImpl {
 
         UserEntity user = userRepository.save(userEntity);
 
-        return  UserSaveResponse.builder()
+        return UserSaveOutput.builder()
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .identificationNumber(user.getIdentificationNumber())
+                .phoneNumber(user.getPhoneNumber())
+                .city(user.getCity())
                 .createdAt(user.getCreatedAt())
                 .roles(user.getRoles())
                 .build();
@@ -68,15 +75,18 @@ public class UserServiceImpl {
     }
 
     @Transactional(readOnly = true)
-    public UserSaveResponse getUser(String username) {
+    public UserSaveOutput getUser(String username) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return UserSaveResponse.builder()
+        return UserSaveOutput.builder()
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .identificationNumber(user.getIdentificationNumber())
+                .phoneNumber(user.getPhoneNumber())
+                .city(user.getCity())
                 .createdAt(user.getCreatedAt())
                 .roles(user.getRoles())
                 .build();
