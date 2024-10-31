@@ -21,13 +21,13 @@ public class UserController {
     private final CompromisedPasswordChecker compromisedPasswordChecker;
 
     @PostMapping("/register")
-    public UserSaveOutput saveUser(@Valid @RequestBody UserSaveInput userSaveInput) {
+    public UserSaveOutput register(@Valid @RequestBody UserSaveInput userSaveInput) {
         CompromisedPasswordDecision decision = compromisedPasswordChecker.check(userSaveInput.getPassword());
 
         if (decision.isCompromised()) {
             throw new IllegalArgumentException("Password is compromised");
         }
-        return userService.saveUser(userSaveInput);
+        return userService.register(userSaveInput);
     }
 
 //    @GetMapping("/{username}")

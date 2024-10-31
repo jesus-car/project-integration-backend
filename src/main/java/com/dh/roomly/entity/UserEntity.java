@@ -2,9 +2,13 @@ package com.dh.roomly.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -14,11 +18,14 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, name = "USERNAME")
+    private String username;
 
     @Column(nullable = false, name = "NAMES")
     private String firstName;
@@ -67,6 +74,8 @@ public class UserEntity {
     private boolean accountNonExpired;
     @Column(nullable = false, name = "CREDENTIALS_NON_EXPIRED")
     private boolean credentialsNonExpired;
+    @Column(nullable = false, name = "IS_ADMIN")
+    private boolean accountNonLocked;
 
     @Transient
     private boolean isAdmin;
@@ -74,4 +83,8 @@ public class UserEntity {
     @Transient
     private boolean isSeller;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
 }
