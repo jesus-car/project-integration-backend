@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,11 +33,10 @@ public class PropertyService implements IPropertyService {
 
     @Autowired
     IPropertyRepository iPropertyRepository;
-    @Autowired
-    IFileRepository fileRepository;
+
     @Autowired
     IFileService fileService;
-    
+
 
     @Override
     public PropertyDTO findById(Long id) {
@@ -66,9 +66,8 @@ public class PropertyService implements IPropertyService {
 
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
 
-        List<FileEntity> fileEntities = fileService.saveFiles(files);
-        fileRepository.saveAll(fileEntities);
-        property.getPhotos().addAll(fileEntities);
+        List<FileEntity> photos = fileService.uploadFiles(files);
+        property.setPhotos(photos);
 
         PropertyEntity savedProperty = iPropertyRepository.save(property);
         return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
