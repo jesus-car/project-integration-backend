@@ -4,6 +4,7 @@ import com.dh.roomly.common.NotFound;
 import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
+import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.PropertyEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
@@ -58,7 +59,7 @@ public class PropertyService implements IPropertyService {
 
     @Override
     @Transactional
-    public PropertyDTO createPropertyWithPhotos(PropertyDTO propertyDTO, List<MultipartFile> files) throws IOException {
+    public PropertyDTO createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
