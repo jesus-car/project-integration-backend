@@ -39,3 +39,7 @@ spring:
 
 upload:
   directory: uploads/images/
+
+cors:
+  allowed:
+    origins: http://localhost,http://107.21.81.113:8080
