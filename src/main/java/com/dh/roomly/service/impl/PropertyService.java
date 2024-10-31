@@ -33,12 +33,10 @@ public class PropertyService implements IPropertyService {
 
     @Autowired
     IPropertyRepository iPropertyRepository;
-    @Autowired
-    IFileRepository fileRepository;
+
     @Autowired
     IFileService fileService;
-    @Autowired
-    S3FileService s3Service;
+
 
     @Override
     public PropertyDTO findById(Long id) {
@@ -68,8 +66,7 @@ public class PropertyService implements IPropertyService {
 
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
 
-        List<FileEntity> photos = s3Service.uploadFiles(files);
-        fileRepository.saveAll(photos);
+        List<FileEntity> photos = fileService.uploadFiles(files);
         property.setPhotos(photos);
 
         PropertyEntity savedProperty = iPropertyRepository.save(property);
