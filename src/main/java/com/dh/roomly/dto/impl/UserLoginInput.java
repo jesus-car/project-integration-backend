@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginRequest implements IDTOEntity {
-    private String username;
+public class UserLoginInput implements IDTOEntity {
+    private String email;
     private String password;
 }

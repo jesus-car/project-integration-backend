@@ -30,9 +30,9 @@ public class UserController {
         return userService.saveUser(userSaveInput);
     }
 
-    @GetMapping("/{username}")
-    public UserSaveOutput getUser(@PathVariable String username) {
-        log.info("Getting user with username: {}", username);
-        return userService.getUser(username);
-    }
+//    @GetMapping("/{username}")
+//    public UserSaveOutput getUser(@PathVariable String username) {
+//        log.info("Getting user with username: {}", username);
+//        return userService.getUser(username);
+//    }
 }

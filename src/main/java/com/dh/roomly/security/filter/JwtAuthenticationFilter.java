@@ -1,6 +1,6 @@
 package com.dh.roomly.security.filter;
 
-import com.dh.roomly.dto.impl.UserLoginRequest;
+import com.dh.roomly.dto.impl.UserLoginInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -43,10 +43,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken;
 
         try {
-            UserLoginRequest userLoginRequest = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequest.class);
+            UserLoginInput userLoginInput = new ObjectMapper().readValue(request.getInputStream(), UserLoginInput.class);
             usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                    userLoginRequest.getUsername(),
-                    userLoginRequest.getPassword()
+                    userLoginInput.getEmail(),
+                    userLoginInput.getPassword()
             );
         } catch (IOException e) {
             throw new AuthenticationServiceException("Invalid request");

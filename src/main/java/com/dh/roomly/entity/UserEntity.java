@@ -32,9 +32,6 @@ public class UserEntity {
     @Column( nullable = false, name = "IDENTIFICATION_TYPE")
     private Short typeId;
 
-    @Column(unique = true, nullable = false, name = "USERNAME")
-    private String username;
-
     @Column(unique = true, nullable = false, name = "EMAIL")
     private String email;
 
@@ -44,8 +41,8 @@ public class UserEntity {
     @Column(nullable = false, name = "PHONE")
     private String phoneNumber;
 
-    @Column(nullable = false, name = "CITY")
-    private String city;
+    @Column(nullable = false, name = "CITY_ID")
+    private Short cityId;
 
     @Column(name = "PROFILE_PHOTO_ID")
     private Long profilePhotoId;
@@ -58,7 +55,7 @@ public class UserEntity {
             uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","rol_id"})
     )
     @Column(nullable = false, name = "ROLE_ID")
-    private Set<Role> roles = new HashSet<>();
+    private Set<RoleEntity> roleEntities = new HashSet<>();
 
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
@@ -72,6 +69,9 @@ public class UserEntity {
     private boolean credentialsNonExpired;
 
     @Transient
-    private boolean isAdmin = false;
+    private boolean isAdmin;
+
+    @Transient
+    private boolean isSeller;
 
 }

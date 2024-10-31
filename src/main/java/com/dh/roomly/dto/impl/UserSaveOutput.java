@@ -1,7 +1,7 @@
 package com.dh.roomly.dto.impl;
 
 import com.dh.roomly.dto.IDTOEntity;
-import com.dh.roomly.entity.Role;
+import com.dh.roomly.entity.RoleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,12 +17,11 @@ import java.util.Set;
 public class UserSaveOutput implements IDTOEntity {
     private String firstName;
     private String lastName;
-    private String identificationNumber;
     private String email;
-    private String username;
+    private String identificationNumber;
     private String phoneNumber;
-    private String city;
+    private Short city;
     private Long profilePhotoId;
     private LocalDateTime createdAt;
-    private Set<Role> roles;
+    private Set<RoleEntity> roleEntities;
 }

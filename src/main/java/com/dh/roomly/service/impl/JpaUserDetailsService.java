@@ -22,23 +22,23 @@ public class JpaUserDetailsService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = userService.findByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity userEntity = userService.findByEmail(email);
 
         // Se diferencian los roles de los permisos por el prefijo "ROLE_"
-        List<GrantedAuthority> authorities = userEntity.getRoles()
+        List<GrantedAuthority> authorities = userEntity.getRoleEntities()
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
 
-        userEntity.getRoles().forEach(role -> {
+        userEntity.getRoleEntities().forEach(role -> {
             role.getPermissions().forEach(permission -> {
                 authorities.add(new SimpleGrantedAuthority(permission.getName()));
             });
         });
 
         return User.builder()
-                .username(userEntity.getUsername())
+                .username(userEntity.getEmail())
                 .password(userEntity.getPassword())
                 .disabled(!userEntity.isEnabled())
                 .accountExpired(!userEntity.isAccountNonExpired())

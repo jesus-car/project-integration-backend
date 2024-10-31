@@ -2,7 +2,7 @@ package com.dh.roomly;
 
 import com.dh.roomly.common.RoleEnum;
 import com.dh.roomly.entity.PermissionEntity;
-import com.dh.roomly.entity.Role;
+import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,38 +38,48 @@ public class RoomlyApplication {
 					.build();
 
 			// Create roles
-			Role invitedRole = Role.builder()
-					.name(RoleEnum.ROLE_INVITED)
-					.permissions(Set.of(readPermission))
+			RoleEntity clientRoleEntity = RoleEntity.builder()
+					.name(RoleEnum.ROLE_CLIENT)
+					.permissions(Set.of(readPermission, updatePermission, deletePermission, writePermission))
 					.build();
 
-			Role userRole = Role.builder()
-					.name(RoleEnum.ROLE_USER)
-					.permissions(Set.of(readPermission, writePermission))
+			RoleEntity sellerRoleEntity = RoleEntity.builder()
+					.name(RoleEnum.ROLE_SELLER)
+					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
-			Role moderatorRole = Role.builder()
-					.name(RoleEnum.ROLE_MODERATOR)
-					.permissions(Set.of(readPermission, writePermission, updatePermission))
-					.build();
-
-			Role adminRole = Role.builder()
+			RoleEntity adminRoleEntity = RoleEntity.builder()
 					.name(RoleEnum.ROLE_ADMIN)
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
 			// Create users
-			UserEntity user = UserEntity.builder()
+			UserEntity client = UserEntity.builder()
 					.firstName("John")
 					.lastName("Doe")
-					.username("john.doe")
 					.email("jhon.doe@asd.com")
 					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(userRole))
+					.roleEntities(Set.of(clientRoleEntity))
 					.identificationNumber("1234")
 					.typeId(Short.parseShort("2"))
 					.phoneNumber("12345")
-					.city("japon")
+					.cityId(Short.parseShort("1"))
+					.isEnabled(true)
+					.isLocked(false)
+					.accountNonExpired(true)
+					.credentialsNonExpired(true)
+					.build();
+
+			UserEntity seller = UserEntity.builder()
+					.firstName("Admin")
+					.lastName("Admin")
+					.email("admin.admin")
+					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
+					.roleEntities(Set.of(sellerRoleEntity))
+					.identificationNumber("1234")
+					.typeId(Short.parseShort("2"))
+					.phoneNumber("12345")
+					.cityId(Short.parseShort("1"))
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
@@ -77,57 +87,22 @@ public class RoomlyApplication {
 					.build();
 
 			UserEntity admin = UserEntity.builder()
-					.firstName("Admin")
-					.lastName("Admin")
-					.username("admin")
-					.email("admin.admin")
-					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(adminRole))
-					.identificationNumber("1234")
-					.typeId(Short.parseShort("2"))
-					.phoneNumber("12345")
-					.city("japon")
-					.isEnabled(true)
-					.isLocked(false)
-					.accountNonExpired(true)
-					.credentialsNonExpired(true)
-					.build();
-
-			UserEntity moderator = UserEntity.builder()
 					.firstName("Moderator")
 					.lastName("Moderator")
-					.username("moderator")
 					.email("moderator.moderator")
 					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(moderatorRole))
+					.roleEntities(Set.of(adminRoleEntity))
 					.identificationNumber("1234")
 					.typeId(Short.parseShort("2"))
 					.phoneNumber("12345")
-					.city("japon")
+					.cityId(Short.parseShort("1"))
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
 					.credentialsNonExpired(true)
 					.build();
 
-			UserEntity invited = UserEntity.builder()
-					.firstName("Invited")
-					.lastName("Invited")
-					.username("invited")
-					.email("invited.invited")
-					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(invitedRole))
-					.identificationNumber("1234")
-					.typeId(Short.parseShort("2"))
-					.phoneNumber("12345")
-					.city("japon")
-					.isEnabled(true)
-					.isLocked(false)
-					.accountNonExpired(true)
-					.credentialsNonExpired(true)
-					.build();
-
-			userRepository.saveAll(Set.of(user, admin, moderator, invited));
+			userRepository.saveAll(Set.of(client, seller, admin));
 		};
 	}
 };

@@ -6,11 +6,11 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class IsValidUsernameValidator implements ConstraintValidator<IsValidUsername, String> {
+public class IsValidEmailValidator implements ConstraintValidator<IsValidEmail, String> {
 
     private final UserRepository userRepository;
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        return !userRepository.existsByUsername(s);
+        return !userRepository.existsByEmail(s);
     }
 }
