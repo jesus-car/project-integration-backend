@@ -46,11 +46,6 @@ jobs:
                     dockerfile: Dockerfile
                     username: ${{ secrets.DOCKERHUB_USERNAME }}
                     password: ${{ secrets.DOCKERHUB_TOKEN }}
-                env:
-                    AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-                    AWS__SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-                    AWS_REGION: ${{ secrets.AWS_REGION }}
-                    AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
 
             -   name: SSH to EC2
                 run: |
@@ -62,5 +57,10 @@ jobs:
                       sudo docker pull jesuscar/ci-demo
                       sudo docker stop backend-integration || true
                       sudo docker rm backend-integration || true
-                      sudo docker run -d -p 8080:9000 --name backend-integration jesuscar/ci-demo
+                      sudo docker run -d -p 8080:9000 --name backend-integration \
+                        -e AWS_ACCESS_KEY=$AWS_ACCESS_KEY \
+                        -e AWS_SECRET_KEY=$AWS_SECRET_KEY \
+                        -e AWS_REGION=$AWS_REGION \
+                        -e AWS_S3_BUCKET=$AWS_S3_BUCKET \
+                        jesuscar/ci-demo
                     EOF
