@@ -30,7 +30,7 @@ jobs:
                 with:
                     distribution: 'corretto'
                     java-version: '17'
-            -   name: Set environment variables
+            -   name: Set environment variables for build
                 run: |
                     AWS_ACCESS_KEY=$AWS_ACCESS_KEY
                     AWS__SECRET_KEY=$AWS_SECRET_KEY
@@ -48,6 +48,12 @@ jobs:
                     dockerfile: Dockerfile
                     username: ${{ secrets.DOCKERHUB_USERNAME }}
                     password: ${{ secrets.DOCKERHUB_TOKEN }}
+                env:
+                    AWS_ACCESS_KEY: $AWS_ACCESS_KEY
+                    AWS__SECRET_KEY: $AWS__SECRET_KEY
+                    AWS_REGION: $AWS_REGION
+                    AWS_S3_BUCKET: $AWS_S3_BUCKET
+
             -   name: SSH to EC2
                 run: |
                     echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > primerkey.pem
