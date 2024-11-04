@@ -2,6 +2,7 @@ package com.dh.roomly.controller;
 
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
+import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.validation.Valid;
@@ -37,7 +38,7 @@ public class PropertyController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<PropertyDTO> createPropertyWithPhotos(@Valid @RequestPart("propertyDTO") PropertyDTO dto,
+    public ResponseEntity<PropertyDTO> createPropertyWithPhotos(@Valid @RequestPart("propertyDTO") PropertyDTOInput dto,
                                                                 @RequestParam("files") List<MultipartFile> images) throws IOException {
         if (images == null || images.isEmpty() || images.stream().allMatch(MultipartFile::isEmpty)) {
             throw new MissingImageException("At least one non-empty image must be provided.");
