@@ -7,5 +7,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IFileService {
-    List<FileEntity> saveFiles(List<MultipartFile> files) throws IOException;
+    List<FileEntity> uploadFiles(List<MultipartFile> files) throws IOException;
 }
