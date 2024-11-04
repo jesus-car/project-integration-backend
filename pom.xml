@@ -149,19 +149,6 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.2.5</version>
-				<configuration>
-					<environmentVariables>
-						<AWS_S3_BUCKET>jdbc:mysql://localhost:3306/dbname</AWS_S3_BUCKET>
-						<AWS_REGION>user</AWS_REGION>
-						<AWS_ACCESS_KEY>password</AWS_ACCESS_KEY>
-						<AWS_SECRET_KEY>password</AWS_SECRET_KEY>
-					</environmentVariables>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 
