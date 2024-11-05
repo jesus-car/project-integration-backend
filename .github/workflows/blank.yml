@@ -59,9 +59,9 @@ jobs:
                       sudo docker image prune -a -f
                       sudo docker pull jesuscar/ci-demo:latest
                       sudo docker run -d -p 8080:9000 --name backend-integration \
-                        -e AWS_ACCESS_KEY=123 \
-                        -e AWS_SECRET_KEY=123 \
-                        -e AWS_REGION=asd \
-                        -e AWS_S3_BUCKET=asd \
+                        -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+                        -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
+                        -e AWS_REGION=${{ secrets.AWS_REGION }} \
+                        -e AWS_S3_BUCKET=${{  secrets.AWS_S3_BUCKET }} \
                         jesuscar/ci-demo
                     EOF
