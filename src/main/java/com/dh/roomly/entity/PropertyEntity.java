@@ -56,9 +56,6 @@ public class PropertyEntity {
     @Column(name = "OWNER_ID", nullable = false)
     private Long ownerId;
 
-    @Column(name = "CATEGORY_ID", nullable = false)
-    private Short categoryId;
-
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "property_photo",
@@ -66,4 +63,8 @@ public class PropertyEntity {
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<FileEntity> photos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "CATEGORY_ID", nullable = false)
+    private CategoryEntity category;
 }

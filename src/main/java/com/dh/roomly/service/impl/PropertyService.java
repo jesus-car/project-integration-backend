@@ -5,9 +5,11 @@ import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
+import com.dh.roomly.entity.CategoryEntity;
 import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.PropertyEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
+import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.IFileRepository;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.IPropertyRepository;
@@ -33,6 +35,8 @@ public class PropertyService implements IPropertyService {
 
     @Autowired
     IPropertyRepository iPropertyRepository;
+    @Autowired
+    ICategoryRepository categoryRepository;
 
     @Autowired
     IFileService fileService;
@@ -65,6 +69,11 @@ public class PropertyService implements IPropertyService {
         }
 
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
+
+        // Obtiene la categoría por ID y la asigna a la propiedad
+        CategoryEntity category = categoryRepository.findById(propertyDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + propertyDTO.getCategoryId()));
+        property.setCategory(category);
 
         List<FileEntity> photos = fileService.uploadFiles(files);
         property.setPhotos(photos);
