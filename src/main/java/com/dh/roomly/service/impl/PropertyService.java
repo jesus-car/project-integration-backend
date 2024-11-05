@@ -5,18 +5,18 @@ import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTO;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
+import com.dh.roomly.entity.CategoryEntity;
 import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.PropertyEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
-import com.dh.roomly.repository.IFileRepository;
 import com.dh.roomly.exception.ResourceNotFoundException;
+import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.IPropertyRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,18 +24,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class PropertyService implements IPropertyService {
 
     private final IPropertyRepository iPropertyRepository;
-    private final IFileRepository fileRepository;
     private final IFileService fileService;
+    private final ICategoryRepository categoryRepository;
 
     @Override
     public PropertyDTO findById(Long id) {
@@ -62,14 +60,22 @@ public class PropertyService implements IPropertyService {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
-
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
-
-        List<FileEntity> photos = fileService.uploadFiles(files);
+        assignCategoryToProperty(propertyDTO.getCategoryId(), property);
+        List<FileEntity> photos = uploadPropertyPhotos(files);
         property.setPhotos(photos);
-
         PropertyEntity savedProperty = iPropertyRepository.save(property);
         return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
+    }
+
+    private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {
+        CategoryEntity category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + categoryId));
+        property.setCategory(category);
+    }
+
+    private List<FileEntity> uploadPropertyPhotos(List<MultipartFile> files) throws IOException {
+        return fileService.uploadFiles(files);
     }
 
     @Override
