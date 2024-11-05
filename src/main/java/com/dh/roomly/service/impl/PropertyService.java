@@ -16,6 +16,7 @@ import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,15 +30,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class PropertyService implements IPropertyService {
 
-    @Autowired
-    IPropertyRepository iPropertyRepository;
-    @Autowired
-    ICategoryRepository categoryRepository;
-
-    @Autowired
-    IFileService fileService;
+    private final IPropertyRepository iPropertyRepository;
+    private final IFileRepository fileRepository;
+    private final IFileService fileService;
 
 
     @Override
@@ -85,7 +83,7 @@ public class PropertyService implements IPropertyService {
         List<PropertyEntity> properties = iPropertyRepository.findAll();
         return properties.stream()
                 .map(property -> (PropertyDTO) MappingDTO.convertToDto(property, new PropertyDTO()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private PropertyEntity findPropertyEntityById(Long id){
