@@ -39,8 +39,8 @@ public class PropertyController {
     }
 
     @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PropertyDTOOutput> createPropertyWithPhotos(@Valid @RequestPart("propertyDTO") PropertyDTOInput dto,
-                                                                      @RequestParam("files") List<MultipartFile> images) throws IOException {
+    public ResponseEntity<PropertyDTOOutput> createPropertyWithPhotos(@Valid @RequestPart("property") PropertyDTOInput dto,
+                                                                      @RequestParam("images") List<MultipartFile> images) throws IOException {
         if (images == null || images.isEmpty() || images.stream().allMatch(MultipartFile::isEmpty)) {
             throw new MissingImageException("At least one non-empty image must be provided.");
         }

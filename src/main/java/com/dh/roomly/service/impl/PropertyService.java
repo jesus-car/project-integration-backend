@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -65,7 +66,15 @@ public class PropertyService implements IPropertyService {
         List<FileEntity> photos = uploadPropertyPhotos(files);
         property.setPhotos(photos);
         PropertyEntity savedProperty = iPropertyRepository.save(property);
-        return (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
+
+        PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
+
+        List<String> photoUrls = photos.stream()
+                .map(FileEntity::getUrl)
+                .collect(Collectors.toList());
+        dtoOutput.setPhotoUrls(photoUrls);
+
+        return dtoOutput;
     }
 
     private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {

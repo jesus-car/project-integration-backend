@@ -8,6 +8,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -68,4 +69,6 @@ public class PropertyDTOOutput implements IDTOEntity {
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     private Short categoryId;
+
+    private List<String> photoUrls;
 }
