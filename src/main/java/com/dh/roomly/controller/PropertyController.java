@@ -1,6 +1,6 @@
 package com.dh.roomly.controller;
 
-import com.dh.roomly.dto.impl.PropertyDTO;
+import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.exception.MissingImageException;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,25 +32,25 @@ public class PropertyController {
     }
 
     @PostMapping("/filter")
-    public Page<PropertyDTO> findAll(@RequestParam(defaultValue = "0") @Min(0) int page,
-                                    @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size,
-                                    @RequestBody @Valid PropertyFilterDTO filter){
+    public Page<PropertyDTOOutput> findAll(@RequestParam(defaultValue = "0") @Min(0) int page,
+                                           @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size,
+                                           @RequestBody @Valid PropertyFilterDTO filter){
         return this.iPropertyService.findAll(filter, PageRequest.of(page, size));
     }
 
-    @PostMapping("/new")
-    public ResponseEntity<PropertyDTO> createPropertyWithPhotos(@Valid @RequestPart("propertyDTO") PropertyDTOInput dto,
-                                                                @RequestParam("files") List<MultipartFile> images) throws IOException {
+    @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PropertyDTOOutput> createPropertyWithPhotos(@Valid @RequestPart("property") PropertyDTOInput dto,
+                                                                      @RequestParam("images") List<MultipartFile> images) throws IOException {
         if (images == null || images.isEmpty() || images.stream().allMatch(MultipartFile::isEmpty)) {
             throw new MissingImageException("At least one non-empty image must be provided.");
         }
-        PropertyDTO createdProperty = iPropertyService.createPropertyWithPhotos(dto, images);
+        PropertyDTOOutput createdProperty = iPropertyService.createPropertyWithPhotos(dto, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProperty);
     }
 
     @GetMapping("/admin/list")
-    public ResponseEntity<List<PropertyDTO>> findAllForAdmin() {
-        List<PropertyDTO> properties = this.iPropertyService.findAllForAdmin();
+    public ResponseEntity<List<PropertyDTOOutput>> findAllForAdmin() {
+        List<PropertyDTOOutput> properties = this.iPropertyService.findAllForAdmin();
         return ResponseEntity.ok(properties);
     }
 
