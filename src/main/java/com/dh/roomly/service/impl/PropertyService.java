@@ -2,7 +2,7 @@ package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.NotFound;
 import com.dh.roomly.dto.common.MappingDTO;
-import com.dh.roomly.dto.impl.PropertyDTO;
+import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.entity.CategoryEntity;
@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,9 +37,9 @@ public class PropertyService implements IPropertyService {
     private final ICategoryRepository categoryRepository;
 
     @Override
-    public PropertyDTO findById(Long id) {
-        return (PropertyDTO) MappingDTO.convertToDto(
-                this.findPropertyEntityById(id), new PropertyDTO());
+    public PropertyDTOOutput findById(Long id) {
+        return (PropertyDTOOutput) MappingDTO.convertToDto(
+                this.findPropertyEntityById(id), new PropertyDTOOutput());
     }
 
     @Override
@@ -48,15 +49,15 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
-    public Page<PropertyDTO> findAll(PropertyFilterDTO filter, Pageable pageable) {
+    public Page<PropertyDTOOutput> findAll(PropertyFilterDTO filter, Pageable pageable) {
         Specification<PropertyEntity> specification = this.addFilters(filter);
         Page<PropertyEntity> property = iPropertyRepository.findAll(specification, pageable);
-        return property.map(propertyEntity -> (PropertyDTO) MappingDTO.convertToDto(propertyEntity, new PropertyDTO()));
+        return property.map(propertyEntity -> (PropertyDTOOutput) MappingDTO.convertToDto(propertyEntity, new PropertyDTOOutput()));
     }
 
     @Override
     @Transactional
-    public PropertyDTO createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException {
+    public PropertyDTOOutput createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
@@ -65,7 +66,15 @@ public class PropertyService implements IPropertyService {
         List<FileEntity> photos = uploadPropertyPhotos(files);
         property.setPhotos(photos);
         PropertyEntity savedProperty = iPropertyRepository.save(property);
-        return (PropertyDTO) MappingDTO.convertToDto(savedProperty, new PropertyDTO());
+
+        PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
+
+        List<String> photoUrls = photos.stream()
+                .map(FileEntity::getUrl)
+                .collect(Collectors.toList());
+        dtoOutput.setPhotoUrls(photoUrls);
+
+        return dtoOutput;
     }
 
     private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {
@@ -79,10 +88,10 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
-    public List<PropertyDTO> findAllForAdmin() {
+    public List<PropertyDTOOutput> findAllForAdmin() {
         List<PropertyEntity> properties = iPropertyRepository.findAll();
         return properties.stream()
-                .map(property -> (PropertyDTO) MappingDTO.convertToDto(property, new PropertyDTO()))
+                .map(property -> (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput()))
                 .toList();
     }
 
