@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -69,13 +68,15 @@ public class PropertyService implements IPropertyService {
         PropertyEntity savedProperty = iPropertyRepository.save(property);
 
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
-
-        List<String> photoUrls = photos.stream()
-                .map(FileEntity::getUrl)
-                .collect(Collectors.toList());
-        dtoOutput.setPhotoUrls(photoUrls);
+        dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos,dtoOutput));
 
         return dtoOutput;
+    }
+
+    private List<String> mapUrlsToPropertyDTO(List<FileEntity> photos, PropertyDTOOutput dtoOutput){
+        return photos.stream()
+                .map(FileEntity::getUrl)
+                .collect(Collectors.toList());
     }
 
     private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {
@@ -92,7 +93,6 @@ public class PropertyService implements IPropertyService {
     @Transactional
     public List<PropertyDTOOutput> findAllForAdmin() {
         List<PropertyEntity> properties = iPropertyRepository.findAll();
-
         return properties.stream()
                 .map(property -> {
                     PropertyDTOOutput propertyDTO = (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput());
@@ -101,20 +101,12 @@ public class PropertyService implements IPropertyService {
                     if (property.getPhotos() != null) {
                         // Esto fuerza la carga de la colección de fotos
                         property.getPhotos().size(); // Solo para inicializar la colección
+                        propertyDTO.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos(),propertyDTO));
                     }
-
-                    // Lógica para mapear las fotos a URLs
-                    List<String> photoUrls = property.getPhotos().stream()
-                            .map(FileEntity::getUrl)
-                            .collect(Collectors.toList());
-                    propertyDTO.setPhotoUrls(photoUrls);
-
                     return propertyDTO;
                 })
                 .collect(Collectors.toList());
     }
-
-
 
     private PropertyEntity findPropertyEntityById(Long id){
         return this.iPropertyRepository.findById(String.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(
