@@ -48,8 +48,9 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "PHONE")
     private Integer phoneNumber;
 
-    @Column(nullable = false, name = "CITY_ID")
-    private Short cityId;
+    @ManyToOne
+    @JoinColumn(name = "city_id", nullable = false)
+    private CityEntity city;
 
     @Column(name = "PROFILE_PHOTO_ID")
     private Long profilePhotoId;
@@ -58,10 +59,10 @@ public class UserEntity implements UserDetails {
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "rol_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","rol_id"})
+            inverseJoinColumns = @JoinColumn(name = "role_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","role_id"})
     )
-    @Column(nullable = false, name = "ROLE_ID")
+    @Column(nullable = false)
     private Set<RoleEntity> roles = new HashSet<>();
 
     @Column(name = "CREATED_AT")

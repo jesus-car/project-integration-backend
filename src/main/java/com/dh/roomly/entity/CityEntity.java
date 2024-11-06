@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "city")
 public class CityEntity implements IDTOEntity {
     @Id
@@ -18,7 +19,7 @@ public class CityEntity implements IDTOEntity {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "state_id", nullable = false)
+    @JoinColumn(name = "state_id")
     private StateEntity state;
 
 }

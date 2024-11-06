@@ -7,6 +7,7 @@ import com.dh.roomly.dto.impl.UserSaveInput;
 import com.dh.roomly.dto.impl.UserSaveOutput;
 import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
+import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.RoleRepository;
 import com.dh.roomly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Set;
 public class UserServiceImpl {
 
     private final RoleRepository roleRepository;
+    private final ICityRepository cityRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
@@ -43,7 +45,6 @@ public class UserServiceImpl {
                 .identificationNumber(userSaveInput.getIdentificationNumber())
                 .typeId(userSaveInput.getTypeId())
                 .phoneNumber(userSaveInput.getPhoneNumber())
-                .cityId(userSaveInput.getCityId())
                 .isEnabled(true)
                 .isLocked(false)
                 .accountNonExpired(true)
@@ -51,6 +52,7 @@ public class UserServiceImpl {
                 .accountNonLocked(true)
                 .build();
 
+        // Set roles
         Set<RoleEntity> roleEntities = new HashSet<>();
         roleRepository.findByName(RoleEnum.ROLE_CLIENT).ifPresent(roleEntities::add);
 
@@ -61,8 +63,14 @@ public class UserServiceImpl {
             roleRepository.findByName(RoleEnum.ROLE_SELLER).ifPresent(roleEntities::add);
 
         userEntity.setRoles(roleEntities);
+
+        // Encode password and set creation date
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userEntity.setCreatedAt(LocalDateTime.now());
+
+        // Set city
+        userEntity.setCity(cityRepository.findById(userSaveInput.getCityId())
+                .orElseThrow(() -> new RuntimeException("City not found")));
 
         UserEntity user = userRepository.save(userEntity);
 
@@ -72,7 +80,6 @@ public class UserServiceImpl {
                 .lastName(user.getLastName())
                 .identificationNumber(user.getIdentificationNumber())
                 .phoneNumber(user.getPhoneNumber())
-                .city(user.getCityId())
                 .createdAt(user.getCreatedAt())
                 .roleEntities(user.getRoles())
                 .build();
