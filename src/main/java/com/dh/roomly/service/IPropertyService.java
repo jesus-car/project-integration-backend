@@ -1,6 +1,6 @@
 package com.dh.roomly.service;
 
-import com.dh.roomly.dto.impl.PropertyDTO;
+import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
 import jakarta.transaction.Transactional;
@@ -14,14 +14,14 @@ import java.util.List;
 public interface IPropertyService {
 
 
-    PropertyDTO findById(Long id);
+    PropertyDTOOutput findById(Long id);
 
     void delete(Long id);
 
-    Page<PropertyDTO> findAll(PropertyFilterDTO filter, Pageable pageable);
+    Page<PropertyDTOOutput> findAll(PropertyFilterDTO filter, Pageable pageable);
 
     @Transactional
-    PropertyDTO createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException;
+    PropertyDTOOutput createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException;
 
-    List<PropertyDTO> findAllForAdmin();
+    List<PropertyDTOOutput> findAllForAdmin();
 }
