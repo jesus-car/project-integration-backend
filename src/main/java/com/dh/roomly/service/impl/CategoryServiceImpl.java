@@ -1,13 +1,13 @@
 package com.dh.roomly.service.impl;
 
 import com.dh.roomly.dto.common.MappingDTO;
+import com.dh.roomly.dto.impl.CategoryDTOInput;
 import com.dh.roomly.dto.impl.CategoryDTOOutput;
 import com.dh.roomly.entity.CategoryEntity;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.service.ICategoryService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,5 +32,12 @@ public class CategoryServiceImpl implements ICategoryService {
         return categories.stream()
                 .map(category -> (CategoryDTOOutput)MappingDTO.convertToDto(category, new CategoryDTOOutput()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryDTOOutput createCategory(CategoryDTOInput categoryDTOInput) {
+        CategoryEntity categoryEntity = (CategoryEntity) MappingDTO.convertToEntity(categoryDTOInput, CategoryEntity.class);
+        CategoryEntity savedCategory = categoryRepository.save(categoryEntity);
+        return (CategoryDTOOutput) MappingDTO.convertToDto(savedCategory, new CategoryDTOOutput());
     }
 }

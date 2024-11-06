@@ -14,7 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryDTOInput implements IDTOEntity {
-    private Short id;
     @NotBlank(message = Constants.NOT_BLANK)
     @Size(max = 100, message = "Must be a maximum of 100 characters")
     private String title;
