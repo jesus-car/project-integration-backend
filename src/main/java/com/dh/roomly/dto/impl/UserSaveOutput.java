@@ -18,8 +18,8 @@ public class UserSaveOutput implements IDTOEntity {
     private String firstName;
     private String lastName;
     private String email;
-    private String identificationNumber;
-    private String phoneNumber;
+    private Long identificationNumber;
+    private Integer phoneNumber;
     private Short city;
     private Long profilePhotoId;
     private LocalDateTime createdAt;

@@ -9,7 +9,6 @@ import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.repository.RoleRepository;
 import com.dh.roomly.repository.UserRepository;
-import jakarta.persistence.Transient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,7 +41,7 @@ public class UserServiceImpl {
                 .firstName(userSaveInput.getFirstName())
                 .lastName(userSaveInput.getLastName())
                 .identificationNumber(userSaveInput.getIdentificationNumber())
-                .typeId(Short.parseShort(userSaveInput.getTypeId()))
+                .typeId(userSaveInput.getTypeId())
                 .phoneNumber(userSaveInput.getPhoneNumber())
                 .cityId(userSaveInput.getCityId())
                 .isEnabled(true)
@@ -61,7 +60,7 @@ public class UserServiceImpl {
         if (userEntity.isSeller())
             roleRepository.findByName(RoleEnum.ROLE_SELLER).ifPresent(roleEntities::add);
 
-        userEntity.setRoleEntities(roleEntities);
+        userEntity.setRoles(roleEntities);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userEntity.setCreatedAt(LocalDateTime.now());
 
@@ -75,7 +74,7 @@ public class UserServiceImpl {
                 .phoneNumber(user.getPhoneNumber())
                 .city(user.getCityId())
                 .createdAt(user.getCreatedAt())
-                .roleEntities(user.getRoleEntities())
+                .roleEntities(user.getRoles())
                 .build();
     }
 
