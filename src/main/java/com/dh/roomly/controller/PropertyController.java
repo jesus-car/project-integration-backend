@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +38,7 @@ public class PropertyController {
         return this.iPropertyService.findAll(filter, PageRequest.of(page, size));
     }
 
-    @PostMapping("/new")
+    @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PropertyDTO> createPropertyWithPhotos(@Valid @RequestPart("propertyDTO") PropertyDTOInput dto,
                                                                 @RequestParam("files") List<MultipartFile> images) throws IOException {
         if (images == null || images.isEmpty() || images.stream().allMatch(MultipartFile::isEmpty)) {
