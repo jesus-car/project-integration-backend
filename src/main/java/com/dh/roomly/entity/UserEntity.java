@@ -34,7 +34,7 @@ public class UserEntity implements UserDetails {
     private String lastName;
 
     @Column(nullable = false, name = "IDENTIFICATION_NUMBER")
-    private String identificationNumber;
+    private Long identificationNumber;
 
     @Column( nullable = false, name = "IDENTIFICATION_TYPE")
     private Short typeId;
@@ -46,7 +46,7 @@ public class UserEntity implements UserDetails {
     private String password;
 
     @Column(nullable = false, name = "PHONE")
-    private String phoneNumber;
+    private Integer phoneNumber;
 
     @Column(nullable = false, name = "CITY_ID")
     private Short cityId;
@@ -62,7 +62,7 @@ public class UserEntity implements UserDetails {
             uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","rol_id"})
     )
     @Column(nullable = false, name = "ROLE_ID")
-    private Set<RoleEntity> roleEntities = new HashSet<>();
+    private Set<RoleEntity> roles = new HashSet<>();
 
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> globalHandling(Exception exception, WebRequest request){
-        log.error(exception.getMessage());
+        log.error(exception.getClass().getName());
         return new ResponseEntity<>(ErrorDetailsDTO.builder()
                 .timestamp(LocalDateTime.now())
                 .details(List.of(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
@@ -78,7 +79,7 @@ public class GlobalExceptionHandler {
                     String errorMessage = error.getDefaultMessage();
                     return fieldName + ": " + errorMessage;
                 })
-                .collect(Collectors.toList());
+                .toList();
         return ErrorDetailsDTO.builder()
                 .timestamp(LocalDateTime.now())
                 .details(details)
@@ -109,10 +110,27 @@ public class GlobalExceptionHandler {
                 .build(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of(exception.getMessage()))
+                .message(request.getDescription(false))
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<Object> handleMissingServletRequestPartException(MissingServletRequestPartException exception,  WebRequest request) {
         return  new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
 
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of(exception.getMessage()))
+                .message(request.getDescription(false))
+                .build(), HttpStatus.NOT_FOUND);
+    }
 }
