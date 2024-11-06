@@ -117,7 +117,8 @@ public class GlobalExceptionHandler {
                 .details(List.of(exception.getMessage()))
                 .message(request.getDescription(false))
                 .build(), HttpStatus.BAD_REQUEST);
-      
+    }
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<Object> handleMissingServletRequestPartException(MissingServletRequestPartException exception,  WebRequest request) {
         return  new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
