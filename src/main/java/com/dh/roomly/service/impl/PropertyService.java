@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -88,12 +89,32 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
+    @Transactional
     public List<PropertyDTOOutput> findAllForAdmin() {
         List<PropertyEntity> properties = iPropertyRepository.findAll();
+
         return properties.stream()
-                .map(property -> (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput()))
-                .toList();
+                .map(property -> {
+                    PropertyDTOOutput propertyDTO = (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput());
+
+                    // Inicializa la lista de fotos para evitar LazyInitializationException
+                    if (property.getPhotos() != null) {
+                        // Esto fuerza la carga de la colección de fotos
+                        property.getPhotos().size(); // Solo para inicializar la colección
+                    }
+
+                    // Lógica para mapear las fotos a URLs
+                    List<String> photoUrls = property.getPhotos().stream()
+                            .map(FileEntity::getUrl)
+                            .collect(Collectors.toList());
+                    propertyDTO.setPhotoUrls(photoUrls);
+
+                    return propertyDTO;
+                })
+                .collect(Collectors.toList());
     }
+
+
 
     private PropertyEntity findPropertyEntityById(Long id){
         return this.iPropertyRepository.findById(String.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(
