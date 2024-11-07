@@ -27,6 +27,11 @@ public class PropertyController {
     @Autowired
     private IPropertyService iPropertyService;
 
+    @GetMapping("/{propertyId}")
+    public ResponseEntity<PropertyDTOOutput> getProperty(@PathVariable Long propertyId) {
+        return ResponseEntity.ok(this.iPropertyService.findById(propertyId));
+    }
+
     @DeleteMapping("/{propertyId}")
     public void delete(@PathVariable("propertyId") Long id) {
         this.iPropertyService.delete(id);
