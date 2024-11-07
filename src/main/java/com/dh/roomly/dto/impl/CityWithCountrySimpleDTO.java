@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CityDTO implements IDTOEntity {
+public class CityWithCountrySimpleDTO implements IDTOEntity {
     private Short id;
 
     @NotBlank(message = Constants.NOT_BLANK)
@@ -23,5 +23,5 @@ public class CityDTO implements IDTOEntity {
     @Schema(example = "nombre ciudad", description = "Nombre de la ciudad. Puede contener letras, números, tildes, espacios y caracteres especiales como - o #.")
     private String name;
 
-    private Short countryId;
+    private CountrySimpleDTO country;
 }
