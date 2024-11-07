@@ -62,7 +62,7 @@ public class PropertyDTOInput implements IDTOEntity {
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = Long.MAX_VALUE, message = Constants.NOT_GREATER_THAN_MAX_VALUE_LONG)
-    @Schema(example = "123456789", description = "ID of the owner, within the range of a Long.")
+    @Schema(example = "1", description = "ID of the owner, within the range of a Long.")
     private Long ownerId;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)

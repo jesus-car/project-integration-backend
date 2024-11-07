@@ -1,9 +1,10 @@
 package com.dh.roomly;
 
 import com.dh.roomly.common.RoleEnum;
-import com.dh.roomly.entity.PermissionEntity;
-import com.dh.roomly.entity.RoleEntity;
-import com.dh.roomly.entity.UserEntity;
+import com.dh.roomly.entity.*;
+import com.dh.roomly.repository.ICategoryRepository;
+import com.dh.roomly.repository.ICityRepository;
+import com.dh.roomly.repository.ICountryRepository;
 import com.dh.roomly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -11,12 +12,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 public class RoomlyApplication {
 	private final UserRepository userRepository;
+	private final ICityRepository cityRepository;
+	private final ICountryRepository countryRepository;
+	private final ICategoryRepository categoryRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(RoomlyApplication.class, args);
@@ -106,6 +112,65 @@ public class RoomlyApplication {
 					.build();
 
 			userRepository.saveAll(Set.of(client, seller, admin));
+
+			// Crear países latinoamericanos
+			CountryEntity argentina = new CountryEntity();
+			argentina.setName("Argentina");
+
+			CountryEntity mexico = new CountryEntity();
+			mexico.setName("México");
+
+			CountryEntity colombia = new CountryEntity();
+			colombia.setName("Colombia");
+
+			countryRepository.saveAll(List.of(argentina, mexico, colombia));
+
+			// Crear ciudades y asociarlas con el país
+			CityEntity buenosAires = new CityEntity();
+			buenosAires.setName("Buenos Aires");
+			buenosAires.setCountry(argentina);
+
+			CityEntity cordoba = new CityEntity();
+			cordoba.setName("Córdoba");
+			cordoba.setCountry(argentina);
+
+			argentina.setCities(new HashSet<>(List.of(buenosAires, cordoba)));
+
+			CityEntity ciudadMexico = new CityEntity();
+			ciudadMexico.setName("Ciudad de México");
+			ciudadMexico.setCountry(mexico);
+
+			CityEntity guadalajara = new CityEntity();
+			guadalajara.setName("Guadalajara");
+			guadalajara.setCountry(mexico);
+
+			mexico.setCities(new HashSet<>(List.of(ciudadMexico, guadalajara)));
+
+			CityEntity bogota = new CityEntity();
+			bogota.setName("Bogotá");
+			bogota.setCountry(colombia);
+
+			CityEntity medellin = new CityEntity();
+			medellin.setName("Medellín");
+			medellin.setCountry(colombia);
+
+			colombia.setCities(new HashSet<>(List.of(bogota, medellin)));
+
+			cityRepository.saveAll(List.of(buenosAires, cordoba, ciudadMexico, guadalajara, bogota, medellin));
+
+			CategoryEntity categoryPlaya = new CategoryEntity();
+			categoryPlaya.setTitle("Playa");
+			categoryPlaya.setDescription("Propiedades destinadas a actividades de playa.");
+
+			CategoryEntity categoryCampo = new CategoryEntity();
+			categoryCampo.setTitle("Campo");
+			categoryCampo.setDescription("Propiedades destinadas a actividades de campo.");
+
+			CategoryEntity categoryMontana = new CategoryEntity();
+			categoryMontana.setTitle("Montaña");
+			categoryMontana.setDescription("Propiedades destinadas a actividades de montaña.");
+
+			categoryRepository.saveAll(List.of(categoryPlaya, categoryCampo, categoryMontana));
 		};
 	}
 };

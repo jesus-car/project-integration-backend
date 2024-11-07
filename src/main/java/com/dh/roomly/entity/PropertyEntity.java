@@ -54,8 +54,9 @@ public class PropertyEntity {
     @Column(name = "NUM_BATHROOMS", nullable = false)
     private Short numBathrooms;
 
-    @Column(name = "OWNER_ID", nullable = false)
-    private Long ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OWNER_ID", nullable = false)
+    private UserEntity owner;
 
     @ManyToOne
     @JoinColumn(name = "CATEGORY_ID", nullable = false)
