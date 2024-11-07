@@ -121,7 +121,11 @@ public class PropertyService implements IPropertyService {
                     if (property.getPhotos() != null) {
                         // Esto fuerza la carga de la colección de fotos
                         property.getPhotos().size(); // Solo para inicializar la colección
-                        propertyDTO.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos(),propertyDTO));
+
+                        // Asigna la primera imagen como mainImageUrl y el resto a photoUrls
+                        List<String> photoUrls = mapUrlsToPropertyDTO(property.getPhotos(), propertyDTO);
+                        propertyDTO.setMainPhotoUrl(photoUrls.get(0)); // Asigna la primera foto como main image
+                        propertyDTO.setPhotoUrls(photoUrls.subList(1, photoUrls.size())); // Asigna el resto a photoUrls
                     }
                     return propertyDTO;
                 })
