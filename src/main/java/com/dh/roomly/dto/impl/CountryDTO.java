@@ -16,10 +16,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class CountryDTO implements IDTOEntity {
     private Short id;
+
     @NotBlank(message = Constants.NOT_BLANK)
-    @Pattern(regexp = "^[A-Za-zÑn]+( [A-Za-zÑñ]+)*$",
+    @Pattern(regexp = "^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$",
             message = "Must contain only letters and single spaces between words")
     @Size(max = 100, message = "Must be a maximum of 100 characters")
     private String name;
-    private Set<StateDTO> states;
+
+    private Set<CityDTO> cities;
 }

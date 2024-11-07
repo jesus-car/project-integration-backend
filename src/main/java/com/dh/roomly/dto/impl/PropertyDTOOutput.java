@@ -35,9 +35,7 @@ public class PropertyDTOOutput implements IDTOEntity {
 
     private BigDecimal pricePerNight;
 
-    @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
-    @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
-    private Short cityId;
+    private CityDTO city;
 
     @Schema(example = "Calle Primavera 1234 #5", description = "Dirección exacta. Puede contener letras, números, tildes, espacios y caracteres especiales como - o #.")
     @NotBlank(message = Constants.NOT_BLANK)

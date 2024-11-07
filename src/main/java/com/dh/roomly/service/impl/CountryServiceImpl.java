@@ -20,14 +20,14 @@ public class CountryServiceImpl implements ICountryService {
     private ICountryRepository countryRepository;
 
     public CountryDTO findById(Short id) {
-        CountryEntity country = countryRepository.findByIdWithStatesAndCities(id)
+        CountryEntity country = countryRepository.findByIdWithCities(id)
                 .orElseThrow(() -> new EntityNotFoundException("Country not found"));
         return (CountryDTO) MappingDTO.convertToDto(country, new CountryDTO());
     }
 
     @Override
     public List<CountryDTO> findAll() {
-        List<CountryEntity> countries = countryRepository.findAllWithStatesAndCities();
+        List<CountryEntity> countries = countryRepository.findAllWithCities();
         return countries.stream()
                 .map(country -> (CountryDTO) MappingDTO.convertToDto(country, new CountryDTO()))
                 .collect(Collectors.toList());
