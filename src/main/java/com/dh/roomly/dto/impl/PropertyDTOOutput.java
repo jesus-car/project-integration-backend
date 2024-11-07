@@ -68,5 +68,6 @@ public class PropertyDTOOutput implements IDTOEntity {
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     private Short categoryId;
 
+    private String mainPhotoUrl;
     private List<String> photoUrls;
 }

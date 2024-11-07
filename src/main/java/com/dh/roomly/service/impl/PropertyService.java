@@ -79,7 +79,12 @@ public class PropertyService implements IPropertyService {
         // Guardar la entidad y convertir a DTO de salida
         PropertyEntity savedProperty = iPropertyRepository.save(property);
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
-        dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos,dtoOutput));
+
+        // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
+        if (!photos.isEmpty()) {
+            dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(photos.get(0))); // Asignar primera imagen
+            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos.subList(1, photos.size()), dtoOutput)); // Asignar el resto
+        }
 
         return dtoOutput;
     }
@@ -88,6 +93,10 @@ public class PropertyService implements IPropertyService {
         return photos.stream()
                 .map(FileEntity::getUrl)
                 .collect(Collectors.toList());
+    }
+
+    private String mapUrlToFileEntity(FileEntity photo) {
+        return photo.getUrl();
     }
 
     private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {
