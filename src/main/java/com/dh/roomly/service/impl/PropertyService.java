@@ -6,11 +6,13 @@ import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.entity.CategoryEntity;
+import com.dh.roomly.entity.CityEntity;
 import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.PropertyEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
+import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.IPropertyRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
@@ -35,6 +37,7 @@ public class PropertyService implements IPropertyService {
     private final IPropertyRepository iPropertyRepository;
     private final IFileService fileService;
     private final ICategoryRepository categoryRepository;
+    private final ICityRepository cityRepository;
 
     @Override
     public PropertyDTOOutput findById(Long id) {
@@ -61,12 +64,20 @@ public class PropertyService implements IPropertyService {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
+        CityEntity city = cityRepository.findById(propertyDTO.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
+
+        // Convertir el DTO a entidad y asignar la categoría
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
         assignCategoryToProperty(propertyDTO.getCategoryId(), property);
+        property.setCity(city);  // Asociamos la ciudad
+
+        // Subir y asociar fotos
         List<FileEntity> photos = uploadPropertyPhotos(files);
         property.setPhotos(photos);
-        PropertyEntity savedProperty = iPropertyRepository.save(property);
 
+        // Guardar la entidad y convertir a DTO de salida
+        PropertyEntity savedProperty = iPropertyRepository.save(property);
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
         dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos,dtoOutput));
 

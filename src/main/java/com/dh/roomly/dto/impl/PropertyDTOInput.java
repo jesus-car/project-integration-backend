@@ -34,6 +34,7 @@ public class PropertyDTOInput implements IDTOEntity {
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
+    @Schema(example = "1", description = "ID of the city, not greater than 255")
     private Short cityId;
 
     @Schema(example = "Calle Primavera 1234 #5", description = "Dirección exacta. Puede contener letras, números, tildes, espacios y caracteres especiales como - o #.")

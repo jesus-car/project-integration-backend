@@ -15,10 +15,10 @@ public class CountryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short id;
-    @Column(name = "NAME",unique=true, nullable=false, length=100)
+
+    @Column(name = "NAME", unique = true, nullable = false, length = 100)
     private String name;
 
     @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<StateEntity> states;
-
+    private Set<CityEntity> cities;
 }
