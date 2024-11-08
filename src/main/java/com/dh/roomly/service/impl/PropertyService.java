@@ -133,6 +133,11 @@ public class PropertyService implements IPropertyService {
         return fileService.uploadFiles(files);
     }
 
+    private FileEntity uploadPropertyPhoto(MultipartFile file) throws IOException {
+        return fileService.uploadFile(file);
+    }
+
+
     @Override
     @Transactional
     public List<PropertyDTOOutput> findAllForAdmin() {
@@ -158,6 +163,91 @@ public class PropertyService implements IPropertyService {
                     return propertyDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public PropertyDTOOutput updateProperty(Long propertyId, PropertyDTOInput propertyDTO, List<MultipartFile> images, MultipartFile mainImage) throws IOException {
+        // Verificar la existencia de la propiedad
+        PropertyEntity property = this.findPropertyEntityById(propertyId);
+
+        // Verificar si el nuevo nombre está en uso por otra propiedad
+        if (!property.getName().equals(propertyDTO.getName()) && iPropertyRepository.existsByName(propertyDTO.getName())) {
+            throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
+        }
+        // Verificar la existencia de la ciudad y del propietario
+        CityEntity city = cityRepository.findById(propertyDTO.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
+        UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
+
+        // Actualizar los campos de la propiedad
+        property.setName(propertyDTO.getName());
+        property.setDescription(propertyDTO.getDescription());
+        property.setPricePerNight(propertyDTO.getPricePerNight());
+        property.setExactAddress(propertyDTO.getExactAddress());
+        property.setMaxCapacity(propertyDTO.getMaxCapacity());
+        property.setNumRooms(propertyDTO.getNumRooms());
+        property.setNumBeds(propertyDTO.getNumBeds());
+        property.setNumBathrooms(propertyDTO.getNumBathrooms());
+        property.setCity(city);  // Asociamos la ciudad
+        property.setOwner(owner);  // Asociar el propietario
+
+        // Asignar la categoría
+        assignCategoryToProperty(propertyDTO.getCategoryId(), property);
+
+        // Manejar las fotos
+        handlePropertyImages(property, images, mainImage);
+
+        // Guardar los cambios en la propiedad y en el propietario
+        PropertyEntity updatedProperty = iPropertyRepository.save(property);
+        owner.getProperties().add(updatedProperty);
+        userRepository.save(owner);
+
+        // Convertir a DTO de salida y asignar URLs de fotos
+        PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(updatedProperty, new PropertyDTOOutput());
+        if (property.getPhotos() != null && !property.getPhotos().isEmpty()) {
+            dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(property.getPhotos().get(0))); // Asignar primera imagen
+            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1, property.getPhotos().size()), dtoOutput)); // Asignar el resto
+        }
+        dtoOutput.setOwnerName(owner.getUsername()); // Asignar el nombre del propietario al DTO de salida
+
+        return dtoOutput;
+    }
+
+    private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images, MultipartFile mainImage) throws IOException {
+        // Obtener las fotos actuales
+        List<FileEntity> currentPhotos = property.getPhotos();
+
+        if (mainImage != null) {
+            // Si se envía una mainImage, reemplazamos la primera imagen
+            FileEntity mainPhoto = uploadPropertyPhoto(mainImage); // Cargar la imagen principal
+            if (currentPhotos.isEmpty()) {
+                // Si no hay fotos, agregamos la nueva como la primera foto
+                currentPhotos.add(mainPhoto);
+            } else {
+                // Si ya hay fotos, reemplazamos la primera
+                currentPhotos.set(0, mainPhoto);
+            }
+        }
+
+        if (images != null && !images.isEmpty()) {
+            // Si se envían otras imágenes (no la mainImage), agregamos o reemplazamos las imágenes siguientes
+            List<FileEntity> newPhotos = uploadPropertyPhotos(images); // Cargar las nuevas imágenes
+            if (currentPhotos.isEmpty()) {
+                // Si no hay fotos, agregamos todas las nuevas imágenes
+                currentPhotos.addAll(newPhotos);
+            } else {
+                // Si ya hay fotos, reemplazamos las imágenes después de la primera
+                if (currentPhotos.size() > 1) {
+                    currentPhotos.subList(1, currentPhotos.size()).clear();
+                }
+                currentPhotos.addAll(newPhotos);
+            }
+        }
+
+        // Si no se envía ninguna imagen (mainImage o images), las fotos permanecen igual
+        property.setPhotos(currentPhotos);
     }
 
     private PropertyEntity findPropertyEntityById(Long id){

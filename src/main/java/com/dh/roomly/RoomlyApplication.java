@@ -34,102 +34,6 @@ public class RoomlyApplication {
 	@Bean
 	CommandLineRunner commandLineRunner() {
 		return args -> {
-			PermissionEntity readPermission = PermissionEntity.builder()
-					.name("READ")
-					.build();
-			PermissionEntity writePermission = PermissionEntity.builder()
-					.name("WRITE")
-					.build();
-			PermissionEntity deletePermission = PermissionEntity.builder()
-					.name("DELETE")
-					.build();
-			PermissionEntity updatePermission = PermissionEntity.builder()
-					.name("UPDATE")
-					.build();
-
-			// Create roles
-			RoleEntity clientRoleEntity = RoleEntity.builder()
-					.name(RoleEnum.ROLE_CLIENT)
-					.permissions(Set.of(readPermission, updatePermission, deletePermission, writePermission))
-					.build();
-
-			RoleEntity sellerRoleEntity = RoleEntity.builder()
-					.name(RoleEnum.ROLE_SELLER)
-					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
-					.build();
-
-			RoleEntity adminRoleEntity = RoleEntity.builder()
-					.name(RoleEnum.ROLE_ADMIN)
-					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
-					.build();
-
-			CityEntity city1 = CityEntity.builder()
-					.name("La Paz")
-					.build();
-
-			CityEntity city2 = CityEntity.builder()
-					.name("Cochabamba")
-					.build();
-
-			CityEntity city3 = CityEntity.builder()
-					.name("Santa Cruz")
-					.build();
-
-			cityRepository.saveAll(Set.of(city1, city2, city3));
-
-			// Create users
-			UserEntity client = UserEntity.builder()
-					.firstName("John")
-					.lastName("Doe")
-					.username("pepelucho")
-					.email("jhon.doe@asd.com")
-					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(clientRoleEntity))
-					.identificationNumber(1234L)
-					.typeId(Short.parseShort("2"))
-					.phoneNumber(12345)
-					.city(city1)
-					.isEnabled(true)
-					.isLocked(false)
-					.accountNonExpired(true)
-					.credentialsNonExpired(true)
-					.build();
-
-			UserEntity seller = UserEntity.builder()
-					.firstName("Admin")
-					.lastName("Admin")
-					.username("pepelucho")
-					.email("admin.admin")
-					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(sellerRoleEntity))
-					.identificationNumber(1234L)
-					.typeId(Short.parseShort("2"))
-					.phoneNumber(12345)
-					.city(city2)
-					.isEnabled(true)
-					.isLocked(false)
-					.accountNonExpired(true)
-					.credentialsNonExpired(true)
-					.build();
-
-			UserEntity admin = UserEntity.builder()
-					.firstName("Moderator")
-					.lastName("Moderator")
-					.username("pepelucho")
-					.email("moderator.moderator")
-					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(adminRoleEntity))
-					.identificationNumber(1234L)
-					.typeId(Short.parseShort("2"))
-					.phoneNumber(12345)
-					.city(city3)
-					.isEnabled(true)
-					.isLocked(false)
-					.accountNonExpired(true)
-					.credentialsNonExpired(true)
-					.build();
-
-			userRepository.saveAll(Set.of(client, seller, admin));
 
 			// Crear países latinoamericanos
 			CountryEntity argentina = new CountryEntity();
@@ -141,7 +45,10 @@ public class RoomlyApplication {
 			CountryEntity colombia = new CountryEntity();
 			colombia.setName("Colombia");
 
-			countryRepository.saveAll(List.of(argentina, mexico, colombia));
+			CountryEntity bolivia = new CountryEntity();
+			bolivia.setName("Bolivia");
+
+			countryRepository.saveAll(List.of(argentina, mexico, colombia, bolivia));
 
 			// Crear ciudades y asociarlas con el país
 			CityEntity buenosAires = new CityEntity();
@@ -174,7 +81,21 @@ public class RoomlyApplication {
 
 			colombia.setCities(new HashSet<>(List.of(bogota, medellin)));
 
-			cityRepository.saveAll(List.of(buenosAires, cordoba, ciudadMexico, guadalajara, bogota, medellin));
+			CityEntity laPaz = new CityEntity();
+			laPaz.setName("La Paz");
+			laPaz.setCountry(bolivia);
+
+			CityEntity cochabamba = new CityEntity();
+			cochabamba.setName("Cochabamba");
+			cochabamba.setCountry(bolivia);
+
+			CityEntity santaCruz = new CityEntity();
+			santaCruz.setName("Santa Cruz");
+			santaCruz.setCountry(bolivia);
+
+			colombia.setCities(new HashSet<>(List.of(laPaz, cochabamba, santaCruz)));
+
+			cityRepository.saveAll(List.of(buenosAires, cordoba, ciudadMexico, guadalajara, bogota, medellin, laPaz, cochabamba, santaCruz));
 
 			CategoryEntity categoryPlaya = new CategoryEntity();
 			categoryPlaya.setTitle("Playa");
@@ -189,6 +110,103 @@ public class RoomlyApplication {
 			categoryMontana.setDescription("Propiedades destinadas a actividades de montaña.");
 
 			categoryRepository.saveAll(List.of(categoryPlaya, categoryCampo, categoryMontana));
+
+			PermissionEntity readPermission = PermissionEntity.builder()
+					.name("READ")
+					.build();
+			PermissionEntity writePermission = PermissionEntity.builder()
+					.name("WRITE")
+					.build();
+			PermissionEntity deletePermission = PermissionEntity.builder()
+					.name("DELETE")
+					.build();
+			PermissionEntity updatePermission = PermissionEntity.builder()
+					.name("UPDATE")
+					.build();
+
+			// Create roles
+			RoleEntity clientRoleEntity = RoleEntity.builder()
+					.name(RoleEnum.ROLE_CLIENT)
+					.permissions(Set.of(readPermission, updatePermission, deletePermission, writePermission))
+					.build();
+
+			RoleEntity sellerRoleEntity = RoleEntity.builder()
+					.name(RoleEnum.ROLE_SELLER)
+					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
+					.build();
+
+			RoleEntity adminRoleEntity = RoleEntity.builder()
+					.name(RoleEnum.ROLE_ADMIN)
+					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
+					.build();
+
+//			CityEntity city1 = CityEntity.builder()
+//					.name("La Paz")
+//					.build();
+//
+//			CityEntity city2 = CityEntity.builder()
+//					.name("Cochabamba")
+//					.build();
+//
+//			CityEntity city3 = CityEntity.builder()
+//					.name("Santa Cruz")
+//					.build();
+//
+//			cityRepository.saveAll(Set.of(city1, city2, city3));
+
+			// Create users
+			UserEntity client = UserEntity.builder()
+					.firstName("John")
+					.lastName("Doe")
+					.username("pepelucho")
+					.email("jhon.doe@asd.com")
+					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
+					.roles(Set.of(clientRoleEntity))
+					.identificationNumber(1234L)
+					.typeId(Short.parseShort("2"))
+					.phoneNumber(12345)
+					.city(laPaz)
+					.isEnabled(true)
+					.isLocked(false)
+					.accountNonExpired(true)
+					.credentialsNonExpired(true)
+					.build();
+
+			UserEntity seller = UserEntity.builder()
+					.firstName("Admin")
+					.lastName("Admin")
+					.username("pepelucho")
+					.email("admin.admin")
+					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
+					.roles(Set.of(sellerRoleEntity))
+					.identificationNumber(1234L)
+					.typeId(Short.parseShort("2"))
+					.phoneNumber(12345)
+					.city(cochabamba)
+					.isEnabled(true)
+					.isLocked(false)
+					.accountNonExpired(true)
+					.credentialsNonExpired(true)
+					.build();
+
+			UserEntity admin = UserEntity.builder()
+					.firstName("Moderator")
+					.lastName("Moderator")
+					.username("pepelucho")
+					.email("moderator.moderator")
+					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
+					.roles(Set.of(adminRoleEntity))
+					.identificationNumber(1234L)
+					.typeId(Short.parseShort("2"))
+					.phoneNumber(12345)
+					.city(santaCruz)
+					.isEnabled(true)
+					.isLocked(false)
+					.accountNonExpired(true)
+					.credentialsNonExpired(true)
+					.build();
+
+			userRepository.saveAll(Set.of(client, seller, admin));
 		};
 	}
 };

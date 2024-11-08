@@ -56,6 +56,7 @@ public class S3FileService implements IFileService {
         return fileEntities;
     }
 
+    @Override
     public FileEntity uploadFile(MultipartFile file) throws IOException {
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename(); // Genera el nombre del archivo
         s3Client.putObject(PutObjectRequest.builder()
@@ -70,7 +71,6 @@ public class S3FileService implements IFileService {
         FileEntity fileEntity = new FileEntity();
         fileEntity.setUrl(fileUrl);
         fileEntity.setName(fileName);
-        fileRepository.save(fileEntity);
-        return fileEntity;
+        return fileRepository.save(fileEntity);
     }
 }

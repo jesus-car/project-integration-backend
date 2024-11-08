@@ -4,6 +4,7 @@ import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.CategoryDTOInput;
 import com.dh.roomly.dto.impl.CategoryDTOOutput;
 import com.dh.roomly.entity.CategoryEntity;
+import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.service.ICategoryService;
@@ -36,6 +37,9 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryDTOOutput createCategory(CategoryDTOInput categoryDTOInput) {
+        if(categoryRepository.existsByTitle(categoryDTOInput.getTitle())){
+            throw new DuplicateResourceException("Category with title: " + categoryDTOInput.getTitle() + " already exists");
+        }
         CategoryEntity categoryEntity = (CategoryEntity) MappingDTO.convertToEntity(categoryDTOInput, CategoryEntity.class);
         CategoryEntity savedCategory = categoryRepository.save(categoryEntity);
         return (CategoryDTOOutput) MappingDTO.convertToDto(savedCategory, new CategoryDTOOutput());
