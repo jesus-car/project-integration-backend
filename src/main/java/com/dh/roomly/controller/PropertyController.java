@@ -73,4 +73,20 @@ public class PropertyController {
         return ResponseEntity.ok(properties);
     }
 
+    @PutMapping(value = "/{propertyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PropertyDTOOutput> updateProperty(@PathVariable Long propertyId,
+                                                            @Valid @RequestPart("property") PropertyDTOInput dto,
+                                                            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+                                                            @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        // Validación de imágenes adicionales (si se proporcionan)
+        if (images != null && (images.size() < 4 || images.size() > 5)) {
+            throw new MissingImageException("Se deben proporcionar entre 4 y 5 imágenes adicionales si se envían.");
+        }
+        if (images != null && images.stream().anyMatch(MultipartFile::isEmpty)) {
+            throw new MissingImageException("Cada imagen adicional debe ser no vacía.");
+        }
+
+        PropertyDTOOutput updatedProperty = iPropertyService.updateProperty(propertyId, dto,images,mainImage);
+        return ResponseEntity.ok(updatedProperty);
+    }
 }

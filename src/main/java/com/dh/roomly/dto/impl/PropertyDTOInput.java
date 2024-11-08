@@ -30,11 +30,13 @@ public class PropertyDTOInput implements IDTOEntity {
     @Size(max = 512, message = "Debe tener un máximo de 512 caracteres")
     private String description;
 
+    @NotNull(message = Constants.NOT_NULL)
     private BigDecimal pricePerNight;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     @Schema(example = "1", description = "ID of the city, not greater than 255")
+    @NotNull(message = Constants.NOT_NULL)
     private Short cityId;
 
     @Schema(example = "Calle Primavera 1234 #5", description = "Dirección exacta. Puede contener letras, números, tildes, espacios y caracteres especiales como - o #.")
@@ -46,27 +48,34 @@ public class PropertyDTOInput implements IDTOEntity {
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
+    @NotNull(message = Constants.NOT_NULL)
     private Short maxCapacity;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
+    @NotNull(message = Constants.NOT_NULL)
     private Short numRooms;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
+    @NotNull(message = Constants.NOT_NULL)
+    @NotNull(message = Constants.NOT_NULL)
     private Short numBeds;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
+    @NotNull(message = Constants.NOT_NULL)
     private Short numBathrooms;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = Long.MAX_VALUE, message = Constants.NOT_GREATER_THAN_MAX_VALUE_LONG)
+    @NotNull(message = Constants.NOT_NULL)
     @Schema(example = "1", description = "ID of the owner, within the range of a Long.")
     private Long ownerId;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
+    @NotNull(message = Constants.NOT_NULL)
     @Schema(example = "1", description = "ID of the category, not greater than 255")
     private Short categoryId;
 }

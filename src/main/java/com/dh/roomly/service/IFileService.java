@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface IFileService {
     List<FileEntity> uploadFiles(List<MultipartFile> files) throws IOException;
+
+    FileEntity uploadFile(MultipartFile file) throws IOException;
 }

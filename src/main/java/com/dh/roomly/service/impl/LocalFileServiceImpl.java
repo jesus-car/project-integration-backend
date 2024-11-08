@@ -50,4 +50,18 @@ public class LocalFileServiceImpl implements IFileService {
 
         return savedFiles;
     }
+
+    @Override
+    public FileEntity uploadFile(MultipartFile file) throws IOException {
+        Path directoryPath = Paths.get(uploadDirectory);
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path filePath = directoryPath.resolve(fileName);
+        Files.write(filePath, file.getBytes());
+
+        FileEntity fileEntity = new FileEntity();
+        fileEntity.setName(fileName);
+        fileEntity.setUrl(filePath.toString());
+        return fileRepository.save(fileEntity);
+    }
+
 }
