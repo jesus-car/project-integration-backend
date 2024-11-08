@@ -1,7 +1,6 @@
 package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.RoleEnum;
-import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.*;
 import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.RoleEntity;
@@ -12,6 +11,8 @@ import com.dh.roomly.repository.RoleRepository;
 import com.dh.roomly.repository.UserRepository;
 import com.dh.roomly.service.IFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -98,7 +98,7 @@ public class UserServiceImpl {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthInput.getEmail(), userAuthInput.getPassword()));
 
         UserDetails user = userRepository.findByEmail(userAuthInput.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String token = jwtService.getToken(user);
 
@@ -135,8 +135,8 @@ public class UserServiceImpl {
     }
 
     @Transactional(readOnly = true)
-    public List<UserGetDTOOutput> findAll() {
-        return userRepository.findAll().stream()
+    public Page<UserGetDTOOutput> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable)
                 .map(user -> UserGetDTOOutput.builder()
                         .id(user.getId())
                         .firstName(user.getFirstName())
@@ -148,8 +148,7 @@ public class UserServiceImpl {
                         .profilePhoto(user.getProfilePhoto())
                         .createdAt(user.getCreatedAt())
                         .roleEntities(user.getRoles())
-                        .build())
-                .toList();
+                        .build());
     }
 
     @Transactional

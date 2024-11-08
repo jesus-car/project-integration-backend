@@ -1,6 +1,5 @@
 package com.dh.roomly.controller;
 
-import com.dh.roomly.dto.impl.UserGetDTOOutput;
 import com.dh.roomly.dto.impl.UserPatchImgOutput;
 import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.impl.UserServiceImpl;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/user")
@@ -20,6 +18,7 @@ import java.util.List;
 public class UserController {
 
     private final UserServiceImpl userService;
+
 
     @PatchMapping(value = "/{id}/profile-picture" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserPatchImgOutput updateUserProfilePicture(@PathVariable Long id, @RequestParam("image") MultipartFile image) throws IOException {

@@ -4,9 +4,11 @@ import com.dh.roomly.dto.impl.UserGetDTOOutput;
 import com.dh.roomly.dto.impl.UserUpdateRoleInput;
 import com.dh.roomly.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/admin")
@@ -21,7 +23,7 @@ public class AdminController {
     }
 
     @GetMapping("/users/all")
-    public List<UserGetDTOOutput> getAllUsers() {
-        return userService.findAll();
+    public Page<UserGetDTOOutput> getAllUsers( @PageableDefault(size = 10, page = 0)Pageable pageable) {
+        return userService.findAll(pageable);
     }
 }
