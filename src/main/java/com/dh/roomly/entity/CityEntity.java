@@ -20,6 +20,6 @@ public class CityEntity implements IDTOEntity {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "country_id")
+    @JoinColumn(name = "country_id", nullable = false)
     private CountryEntity country;
 }
