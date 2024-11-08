@@ -55,4 +55,22 @@ public class S3FileService implements IFileService {
         }
         return fileEntities;
     }
+
+    public FileEntity uploadFile(MultipartFile file) throws IOException {
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename(); // Genera el nombre del archivo
+        s3Client.putObject(PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fileName)
+                        .build(),
+                RequestBody.fromBytes(file.getBytes())
+        );
+
+        String fileUrl = "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
+
+        FileEntity fileEntity = new FileEntity();
+        fileEntity.setUrl(fileUrl);
+        fileEntity.setName(fileName);
+        fileRepository.save(fileEntity);
+        return fileEntity;
+    }
 }

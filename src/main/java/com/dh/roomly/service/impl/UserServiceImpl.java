@@ -1,22 +1,27 @@
 package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.RoleEnum;
-import com.dh.roomly.dto.impl.UserAuthInput;
-import com.dh.roomly.dto.impl.UserAuthOutput;
-import com.dh.roomly.dto.impl.UserSaveInput;
-import com.dh.roomly.dto.impl.UserSaveOutput;
+import com.dh.roomly.dto.impl.*;
+import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
+import com.dh.roomly.exception.ResourceNotFoundException;
+import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.RoleRepository;
 import com.dh.roomly.repository.UserRepository;
+import com.dh.roomly.service.IFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +31,10 @@ import java.util.Set;
 public class UserServiceImpl {
 
     private final RoleRepository roleRepository;
+    private final ICityRepository cityRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final IFileService fileService;
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -43,7 +50,6 @@ public class UserServiceImpl {
                 .identificationNumber(userSaveInput.getIdentificationNumber())
                 .typeId(userSaveInput.getTypeId())
                 .phoneNumber(userSaveInput.getPhoneNumber())
-                .cityId(userSaveInput.getCityId())
                 .isEnabled(true)
                 .isLocked(false)
                 .accountNonExpired(true)
@@ -51,6 +57,7 @@ public class UserServiceImpl {
                 .accountNonLocked(true)
                 .build();
 
+        // Set roles
         Set<RoleEntity> roleEntities = new HashSet<>();
         roleRepository.findByName(RoleEnum.ROLE_CLIENT).ifPresent(roleEntities::add);
 
@@ -61,30 +68,40 @@ public class UserServiceImpl {
             roleRepository.findByName(RoleEnum.ROLE_SELLER).ifPresent(roleEntities::add);
 
         userEntity.setRoles(roleEntities);
+
+        // Encode password and set creation date
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userEntity.setCreatedAt(LocalDateTime.now());
+
+        // Set city
+        userEntity.setCity(cityRepository.findById(userSaveInput.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("City not found")));
 
         UserEntity user = userRepository.save(userEntity);
 
         return UserSaveOutput.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .identificationNumber(user.getIdentificationNumber())
                 .phoneNumber(user.getPhoneNumber())
-                .city(user.getCityId())
                 .createdAt(user.getCreatedAt())
                 .roleEntities(user.getRoles())
+                .token(jwtService.getToken(user))
                 .build();
     }
 
     @Transactional
-    public UserAuthOutput login(UserAuthInput userAuthInput){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthInput.getEmail(), userAuthInput.getPassword()));
-        UserDetails userDetails = userRepository.findByEmail(userAuthInput.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserAuthOutput login(UserAuthInput userAuthInput) {
 
-        String token = jwtService.getToken(userDetails);
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthInput.getEmail(), userAuthInput.getPassword()));
+
+        UserDetails user = userRepository.findByEmail(userAuthInput.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String token = jwtService.getToken(user);
+
         return UserAuthOutput.builder()
                 .token(token)
                 .message("Login successful")
@@ -97,4 +114,56 @@ public class UserServiceImpl {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    @Transactional
+    public UserPatchImgOutput updateUserProfileImage(Long id, MultipartFile image) throws IOException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        FileEntity fileEntity = uploadUserProfileImage(image);
+
+        user.setProfilePhoto(fileEntity);
+        userRepository.save(user);
+
+        return UserPatchImgOutput.builder()
+                .message("Profile image updated successfully")
+                .imageUri(user.getProfilePhoto().getUrl())
+                .build();
+    }
+
+    private FileEntity uploadUserProfileImage(MultipartFile file) throws IOException {
+        return fileService.uploadFile(file);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserGetDTOOutput> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(user -> UserGetDTOOutput.builder()
+                        .id(user.getId())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .identificationNumber(user.getIdentificationNumber())
+                        .phoneNumber(user.getPhoneNumber())
+                        .city(user.getCity().getName())
+                        .profilePhoto(user.getProfilePhoto())
+                        .createdAt(user.getCreatedAt())
+                        .roleEntities(user.getRoles())
+                        .build());
+    }
+
+    @Transactional
+    public String updateUserRole(Long id, UserUpdateRoleInput roles) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Set<RoleEntity> roleEntities = new HashSet<>();
+        roles.getRoles().forEach(role -> {
+            RoleEntity localRole = roleRepository.findById(role).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+            roleEntities.add(localRole);
+        });
+
+        user.setRoles(roleEntities);
+        userRepository.save(user);
+        return "User role updated successfully";
+    }
 }

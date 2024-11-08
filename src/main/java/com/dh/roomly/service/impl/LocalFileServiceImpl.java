@@ -50,4 +50,10 @@ public class LocalFileServiceImpl implements IFileService {
 
         return savedFiles;
     }
+
+    @Override
+    public FileEntity uploadFile(MultipartFile file) throws IOException {
+        return null;
+    }
+
 }
