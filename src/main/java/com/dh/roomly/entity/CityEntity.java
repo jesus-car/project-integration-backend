@@ -19,6 +19,7 @@ public class CityEntity implements IDTOEntity {
     @Column(name = "NAME", unique = true, nullable = false, length = 100)
     private String name;
 
-    @JoinColumn(name = "country_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "country_id")
     private CountryEntity country;
 }

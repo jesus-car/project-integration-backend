@@ -8,7 +8,6 @@ import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.repository.ICategoryRepository;
-import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.ICountryRepository;
 import com.dh.roomly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
