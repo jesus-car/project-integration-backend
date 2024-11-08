@@ -35,9 +35,7 @@ public class PropertyDTOOutput implements IDTOEntity {
 
     private BigDecimal pricePerNight;
 
-    @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
-    @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
-    private Short cityId;
+    private CityWithCountrySimpleDTO city;
 
     @Schema(example = "Calle Primavera 1234 #5", description = "Dirección exacta. Puede contener letras, números, tildes, espacios y caracteres especiales como - o #.")
     @NotBlank(message = Constants.NOT_BLANK)
@@ -62,13 +60,13 @@ public class PropertyDTOOutput implements IDTOEntity {
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     private Short numBathrooms;
 
-    @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
-    @Max(value = Long.MAX_VALUE, message = Constants.NOT_GREATER_THAN_MAX_VALUE_LONG)
-    private Long ownerId;
+    @Size(max = 100, message = "Debe tener un máximo de 100 caracteres")
+    private String ownerName;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     private Short categoryId;
 
+    private String mainPhotoUrl;
     private List<String> photoUrls;
 }

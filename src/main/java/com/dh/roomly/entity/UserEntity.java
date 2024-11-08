@@ -87,4 +87,8 @@ public class UserEntity implements UserDetails {
     private boolean isSeller;
     @Transient
     private boolean isAdmin;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PropertyEntity> properties;
+
 }

@@ -35,8 +35,9 @@ public class PropertyEntity {
     @Column(name = "PRICE_PER_NIGHT", nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerNight;
 
-    @Column(name = "CITY_ID", nullable = false)
-    private Short cityId;
+    @ManyToOne
+    @JoinColumn(name = "CITY_ID", nullable = false)
+    private CityEntity city;
 
     @Column(name = "EXACT_ADDRESS", length = 256)
     private String exactAddress;
@@ -53,8 +54,9 @@ public class PropertyEntity {
     @Column(name = "NUM_BATHROOMS", nullable = false)
     private Short numBathrooms;
 
-    @Column(name = "OWNER_ID", nullable = false)
-    private Long ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OWNER_ID", nullable = false)
+    private UserEntity owner;
 
     @ManyToOne
     @JoinColumn(name = "CATEGORY_ID", nullable = false)

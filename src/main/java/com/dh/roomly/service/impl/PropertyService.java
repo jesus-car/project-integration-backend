@@ -5,13 +5,13 @@ import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
-import com.dh.roomly.entity.CategoryEntity;
-import com.dh.roomly.entity.FileEntity;
-import com.dh.roomly.entity.PropertyEntity;
+import com.dh.roomly.entity.*;
 import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
+import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.IPropertyRepository;
+import com.dh.roomly.repository.UserRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
@@ -35,11 +35,26 @@ public class PropertyService implements IPropertyService {
     private final IPropertyRepository iPropertyRepository;
     private final IFileService fileService;
     private final ICategoryRepository categoryRepository;
+    private final ICityRepository cityRepository;
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public PropertyDTOOutput findById(Long id) {
-        return (PropertyDTOOutput) MappingDTO.convertToDto(
-                this.findPropertyEntityById(id), new PropertyDTOOutput());
+        PropertyEntity property = this.findPropertyEntityById(id);
+        PropertyDTOOutput propertyDTO = (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput());
+
+        // Asigna el nombre del propietario
+        if (property.getOwner() != null) {
+            propertyDTO.setOwnerName(property.getOwner().getUsername());
+        }
+        // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
+        if (!property.getPhotos().isEmpty()) {
+            propertyDTO.setMainPhotoUrl(mapUrlToFileEntity(property.getPhotos().get(0))); // Asignar primera imagen
+            propertyDTO.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1,property.getPhotos().size()), propertyDTO)); // Asignar el resto
+        }
+
+        return propertyDTO;
     }
 
     @Override
@@ -61,14 +76,39 @@ public class PropertyService implements IPropertyService {
         if (iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
+        // Verificar la existencia de la ciudad
+        CityEntity city = cityRepository.findById(propertyDTO.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
+
+        // Verificar la existencia del propietario (usuario) y obtener la entidad del usuario
+        UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
+
+        // Convertir el DTO a entidad y asignar la categoría
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
         assignCategoryToProperty(propertyDTO.getCategoryId(), property);
+        property.setCity(city);  // Asociamos la ciudad
+        property.setOwner(owner);  // Asociar el propietario
+
+        // Subir y asociar fotos
         List<FileEntity> photos = uploadPropertyPhotos(files);
         property.setPhotos(photos);
+
+        // Guardar la entidad y convertir a DTO de salida
         PropertyEntity savedProperty = iPropertyRepository.save(property);
 
+        // Asociar la propiedad con el usuario y guardar el usuario
+        owner.getProperties().add(savedProperty);
+        userRepository.save(owner);
+
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
-        dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos,dtoOutput));
+        // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
+        if (!photos.isEmpty()) {
+            dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(photos.get(0))); // Asignar primera imagen
+            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos.subList(1, photos.size()), dtoOutput)); // Asignar el resto
+        }
+        dtoOutput.setOwnerName(owner.getUsername()); // Asignar el nombre del propietario al DTO de salida
+
 
         return dtoOutput;
     }
@@ -77,6 +117,10 @@ public class PropertyService implements IPropertyService {
         return photos.stream()
                 .map(FileEntity::getUrl)
                 .collect(Collectors.toList());
+    }
+
+    private String mapUrlToFileEntity(FileEntity photo) {
+        return photo.getUrl();
     }
 
     private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {
@@ -97,11 +141,19 @@ public class PropertyService implements IPropertyService {
                 .map(property -> {
                     PropertyDTOOutput propertyDTO = (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput());
 
+                    // Fuerza la carga de owner para evitar LazyInitializationException
+                    if (property.getOwner() != null) {
+                        propertyDTO.setOwnerName(property.getOwner().getUsername());
+                    }
                     // Inicializa la lista de fotos para evitar LazyInitializationException
                     if (property.getPhotos() != null) {
                         // Esto fuerza la carga de la colección de fotos
                         property.getPhotos().size(); // Solo para inicializar la colección
-                        propertyDTO.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos(),propertyDTO));
+
+                        // Asigna la primera imagen como mainImageUrl y el resto a photoUrls
+                        List<String> photoUrls = mapUrlsToPropertyDTO(property.getPhotos(), propertyDTO);
+                        propertyDTO.setMainPhotoUrl(photoUrls.get(0)); // Asigna la primera foto como main image
+                        propertyDTO.setPhotoUrls(photoUrls.subList(1, photoUrls.size())); // Asigna el resto a photoUrls
                     }
                     return propertyDTO;
                 })
