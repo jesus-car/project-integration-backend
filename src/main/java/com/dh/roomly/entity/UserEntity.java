@@ -48,20 +48,21 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "PHONE")
     private Integer phoneNumber;
 
-    @Column(nullable = false, name = "CITY_ID")
-    private Short cityId;
+    @ManyToOne
+    @JoinColumn(name = "city_id", nullable = false)
+    private CityEntity city;
 
-    @Column(name = "PROFILE_PHOTO_ID")
-    private Long profilePhotoId;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private FileEntity profilePhoto;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "rol_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","rol_id"})
+            inverseJoinColumns = @JoinColumn(name = "role_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","role_id"})
     )
-    @Column(nullable = false, name = "ROLE_ID")
+    @Column(nullable = false)
     private Set<RoleEntity> roles = new HashSet<>();
 
     @Column(name = "CREATED_AT")
@@ -74,20 +75,20 @@ public class UserEntity implements UserDetails {
     private boolean accountNonExpired;
     @Column(nullable = false, name = "CREDENTIALS_NON_EXPIRED")
     private boolean credentialsNonExpired;
-    @Column(nullable = false, name = "IS_ADMIN")
+    @Column(nullable = false, name = "ACCOUNT_NON_LOCKED")
     private boolean accountNonLocked;
-
-    @Transient
-    private boolean isAdmin;
-
-    @Transient
-    private boolean isSeller;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
+    @Transient
+    private boolean isSeller;
+    @Transient
+    private boolean isAdmin;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PropertyEntity> properties;
+
 }

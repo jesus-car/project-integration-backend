@@ -1,9 +1,13 @@
 package com.dh.roomly;
 
 import com.dh.roomly.common.RoleEnum;
+import com.dh.roomly.entity.CityEntity;
+import com.dh.roomly.entity.PermissionEntity;
+import com.dh.roomly.entity.RoleEntity;
+import com.dh.roomly.entity.UserEntity;
+import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.repository.ICategoryRepository;
-import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.ICountryRepository;
 import com.dh.roomly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +63,20 @@ public class RoomlyApplication {
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
+			CityEntity city1 = CityEntity.builder()
+					.name("La Paz")
+					.build();
+
+			CityEntity city2 = CityEntity.builder()
+					.name("Cochabamba")
+					.build();
+
+			CityEntity city3 = CityEntity.builder()
+					.name("Santa Cruz")
+					.build();
+
+			cityRepository.saveAll(Set.of(city1, city2, city3));
+
 			// Create users
 			UserEntity client = UserEntity.builder()
 					.firstName("John")
@@ -70,7 +88,7 @@ public class RoomlyApplication {
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
-					.cityId(Short.parseShort("1"))
+					.city(city1)
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
@@ -87,7 +105,7 @@ public class RoomlyApplication {
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
-					.cityId(Short.parseShort("1"))
+					.city(city2)
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
@@ -104,7 +122,7 @@ public class RoomlyApplication {
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
-					.cityId(Short.parseShort("1"))
+					.city(city3)
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
