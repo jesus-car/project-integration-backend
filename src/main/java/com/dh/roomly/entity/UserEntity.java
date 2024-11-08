@@ -52,8 +52,8 @@ public class UserEntity implements UserDetails {
     @JoinColumn(name = "city_id", nullable = false)
     private CityEntity city;
 
-    @Column(name = "PROFILE_PHOTO_ID")
-    private Long profilePhotoId;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private FileEntity profilePhoto;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
@@ -75,17 +75,16 @@ public class UserEntity implements UserDetails {
     private boolean accountNonExpired;
     @Column(nullable = false, name = "CREDENTIALS_NON_EXPIRED")
     private boolean credentialsNonExpired;
-    @Column(nullable = false, name = "IS_ADMIN")
+    @Column(nullable = false, name = "ACCOUNT_NON_LOCKED")
     private boolean accountNonLocked;
-
-    @Transient
-    private boolean isAdmin;
-
-    @Transient
-    private boolean isSeller;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
+
+    @Transient
+    private boolean isSeller;
+    @Transient
+    private boolean isAdmin;
 }
