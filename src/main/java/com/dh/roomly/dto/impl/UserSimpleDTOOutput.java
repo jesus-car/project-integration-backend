@@ -15,9 +15,5 @@ public class UserSimpleDTOOutput implements IDTOEntity {
     private Long id;
     private String firstName;
     private String lastName;
-    private String email;
-    private Long identificationNumber;
-    private Integer phoneNumber;
-    private String city;
     private FileEntity profilePhoto;
 }

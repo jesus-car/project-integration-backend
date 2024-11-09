@@ -66,10 +66,6 @@ public class PropertyService implements IPropertyService {
                 ownerEntity.getId(),
                 ownerEntity.getFirstName(),
                 ownerEntity.getLastName(),
-                ownerEntity.getEmail(),
-                ownerEntity.getIdentificationNumber(),
-                ownerEntity.getPhoneNumber(),
-                ownerEntity.getCity() != null ? ownerEntity.getCity().getName() : null,
                 ownerEntity.getProfilePhoto()
         );
     }
