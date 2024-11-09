@@ -35,10 +35,6 @@ public class PropertyEntity {
     @Column(name = "PRICE_PER_NIGHT", nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerNight;
 
-    @ManyToOne
-    @JoinColumn(name = "CITY_ID", nullable = false)
-    private CityEntity city;
-
     @Column(name = "EXACT_ADDRESS", length = 256)
     private String exactAddress;
 
@@ -73,6 +69,9 @@ public class PropertyEntity {
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<FileEntity> photos = new ArrayList<>();
+
+    @Column(name = "CITY_ID", nullable = false)
+    private Short cityId;
 
     @ManyToOne
     @JoinColumn(name = "city_id", referencedColumnName = "id",

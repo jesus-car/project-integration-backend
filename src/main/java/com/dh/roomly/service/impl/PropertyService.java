@@ -84,8 +84,7 @@ public class PropertyService implements IPropertyService {
         Page<PropertyEntity> property = iPropertyRepository.findAll(specification, pageable);
         return property.map(propertyEntity -> {
             try {
-                propertyEntity.getCity().getState().setCities(null);
-                propertyEntity.getCity().getState().getCountry().setStates(null);
+                propertyEntity.getCity().getCountry().setCities(null);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -94,7 +93,7 @@ public class PropertyService implements IPropertyService {
             propertyDTOOutput.setCityId(propertyEntity.getCityId());
             propertyDTOOutput.setCategoryId(propertyEntity.getCategoryId());
             try {
-                propertyDTOOutput.setCountryId(propertyEntity.getCity().getState().getCountry().getId());
+                propertyDTOOutput.setCountryId(propertyEntity.getCity().getCountry().getId());
                 propertyDTOOutput.setPhotoUrls(propertyEntity.getPhotos().stream()
                         .map(FileEntity::getUrl)
                         .collect(Collectors.toList()));
