@@ -1,8 +1,5 @@
 package com.dh.roomly.dto.filter;
 
-import com.dh.roomly.common.Constants;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +14,7 @@ public class PropertyFilterDTO{
     private BigDecimal minPricePerNight;
     private BigDecimal maxPricePerNight;
     private Short cityId;
+    private Short countryId;
     private String exactAddress;
     private Short maxCapacity;
     private Short numRooms;

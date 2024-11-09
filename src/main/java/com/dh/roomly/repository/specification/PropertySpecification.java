@@ -55,4 +55,9 @@ public class PropertySpecification {
         return (root, query, builder) ->
                 Objects.isNull(price) ? null : builder.equal(root.get("pricePerNight"), price);
     }
+
+    public static Specification<PropertyEntity> countryEqualTo(Short id) {
+        return (root, query, builder) ->
+                Objects.isNull(id) ? null : builder.equal(root.get("city").get("state").get("country").get("id"), id);
+    }
 }

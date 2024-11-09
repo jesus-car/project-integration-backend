@@ -71,4 +71,6 @@ public class PropertyDTOOutput implements IDTOEntity {
     private Short categoryId;
 
     private List<String> photoUrls;
+
+    private Short countryId;
 }

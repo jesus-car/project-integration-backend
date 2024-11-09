@@ -56,15 +56,24 @@ public class PropertyEntity {
     @Column(name = "OWNER_ID", nullable = false)
     private Long ownerId;
 
+    @Column(name = "CATEGORY_ID", nullable = false)
+    private Short categoryId;
+
     @ManyToOne
-    @JoinColumn(name = "CATEGORY_ID", nullable = false)
+    @JoinColumn(name = "CATEGORY_ID", referencedColumnName = "id",
+            insertable = false, updatable = false)
     private CategoryEntity category;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "property_photo",
             joinColumns = @JoinColumn(name = "property_id"),
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<FileEntity> photos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "city_id", referencedColumnName = "id",
+            insertable = false, updatable = false)
+    private CityEntity city;
 }
