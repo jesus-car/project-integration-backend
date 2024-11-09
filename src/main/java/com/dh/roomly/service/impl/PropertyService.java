@@ -5,6 +5,8 @@ import com.dh.roomly.dto.common.MappingDTO;
 import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
+import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
+import com.dh.roomly.dto.impl.UserSimpleDTOOutput;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.exception.ResourceNotFoundException;
@@ -40,21 +42,36 @@ public class PropertyService implements IPropertyService {
 
     @Override
     @Transactional
-    public PropertyDTOOutput findById(Long id) {
-        PropertyEntity property = this.findPropertyEntityById(id);
-        PropertyDTOOutput propertyDTO = (PropertyDTOOutput) MappingDTO.convertToDto(property, new PropertyDTOOutput());
+    public PropertyDetailsDTOOutput findById(Long id) {
+        PropertyEntity property = iPropertyRepository.findByIdWithOwner(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with id: " + id));
 
-        // Asigna el nombre del propietario
-        if (property.getOwner() != null) {
-            propertyDTO.setOwnerName(property.getOwner().getUsername());
-        }
+        PropertyDetailsDTOOutput propertyDTO = (PropertyDetailsDTOOutput) MappingDTO.convertToDto(property, new PropertyDetailsDTOOutput());
         // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
         if (!property.getPhotos().isEmpty()) {
             propertyDTO.setMainPhotoUrl(mapUrlToFileEntity(property.getPhotos().get(0))); // Asignar primera imagen
-            propertyDTO.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1,property.getPhotos().size()), propertyDTO)); // Asignar el resto
+            propertyDTO.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1,property.getPhotos().size()))); // Asignar el resto
         }
-
+        // Crear manualmente UserSimpleDTOOutput si el owner no es nulo
+        if (property.getOwner() != null) {
+            UserSimpleDTOOutput ownerDTO = getUserSimpleDTOOutput(property);
+            propertyDTO.setOwner(ownerDTO);
+        }
         return propertyDTO;
+    }
+
+    private UserSimpleDTOOutput getUserSimpleDTOOutput(PropertyEntity property) {
+        UserEntity ownerEntity = property.getOwner();
+        return new UserSimpleDTOOutput(
+                ownerEntity.getId(),
+                ownerEntity.getFirstName(),
+                ownerEntity.getLastName(),
+                ownerEntity.getEmail(),
+                ownerEntity.getIdentificationNumber(),
+                ownerEntity.getPhoneNumber(),
+                ownerEntity.getCity() != null ? ownerEntity.getCity().getName() : null,
+                ownerEntity.getProfilePhoto()
+        );
     }
 
     @Override
@@ -105,15 +122,15 @@ public class PropertyService implements IPropertyService {
         // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
         if (!photos.isEmpty()) {
             dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(photos.get(0))); // Asignar primera imagen
-            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos.subList(1, photos.size()), dtoOutput)); // Asignar el resto
+            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos.subList(1, photos.size()))); // Asignar el resto
         }
-        dtoOutput.setOwnerName(owner.getUsername()); // Asignar el nombre del propietario al DTO de salida
+        dtoOutput.setOwnerName(owner.getFirstName() + " " + owner.getLastName()); // Asignar el nombre del propietario al DTO de salida
 
 
         return dtoOutput;
     }
 
-    private List<String> mapUrlsToPropertyDTO(List<FileEntity> photos, PropertyDTOOutput dtoOutput){
+    private List<String> mapUrlsToPropertyDTO(List<FileEntity> photos){
         return photos.stream()
                 .map(FileEntity::getUrl)
                 .collect(Collectors.toList());
@@ -148,7 +165,7 @@ public class PropertyService implements IPropertyService {
 
                     // Fuerza la carga de owner para evitar LazyInitializationException
                     if (property.getOwner() != null) {
-                        propertyDTO.setOwnerName(property.getOwner().getUsername());
+                        propertyDTO.setOwnerName(property.getOwner().getFirstName() + " " + property.getOwner().getFirstName());
                     }
                     // Inicializa la lista de fotos para evitar LazyInitializationException
                     if (property.getPhotos() != null) {
@@ -156,7 +173,7 @@ public class PropertyService implements IPropertyService {
                         property.getPhotos().size(); // Solo para inicializar la colección
 
                         // Asigna la primera imagen como mainImageUrl y el resto a photoUrls
-                        List<String> photoUrls = mapUrlsToPropertyDTO(property.getPhotos(), propertyDTO);
+                        List<String> photoUrls = mapUrlsToPropertyDTO(property.getPhotos());
                         propertyDTO.setMainPhotoUrl(photoUrls.get(0)); // Asigna la primera foto como main image
                         propertyDTO.setPhotoUrls(photoUrls.subList(1, photoUrls.size())); // Asigna el resto a photoUrls
                     }
@@ -208,9 +225,9 @@ public class PropertyService implements IPropertyService {
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(updatedProperty, new PropertyDTOOutput());
         if (property.getPhotos() != null && !property.getPhotos().isEmpty()) {
             dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(property.getPhotos().get(0))); // Asignar primera imagen
-            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1, property.getPhotos().size()), dtoOutput)); // Asignar el resto
+            dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1, property.getPhotos().size()))); // Asignar el resto
         }
-        dtoOutput.setOwnerName(owner.getUsername()); // Asignar el nombre del propietario al DTO de salida
+        dtoOutput.setOwnerName(owner.getFirstName() + " " + owner.getLastName()); // Asignar el nombre del propietario al DTO de salida
 
         return dtoOutput;
     }
