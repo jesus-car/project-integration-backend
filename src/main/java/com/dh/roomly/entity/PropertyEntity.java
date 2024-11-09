@@ -35,10 +35,6 @@ public class PropertyEntity {
     @Column(name = "PRICE_PER_NIGHT", nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerNight;
 
-    @ManyToOne
-    @JoinColumn(name = "CITY_ID", nullable = false)
-    private CityEntity city;
-
     @Column(name = "EXACT_ADDRESS", length = 256)
     private String exactAddress;
 
@@ -58,15 +54,23 @@ public class PropertyEntity {
     @JoinColumn(name = "OWNER_ID", nullable = false)
     private UserEntity owner;
 
+    @Column(name = "CATEGORY_ID", nullable = false)
+    private Short categoryId;
+
     @ManyToOne
-    @JoinColumn(name = "CATEGORY_ID", nullable = false)
+    @JoinColumn(name = "CATEGORY_ID", referencedColumnName = "id",
+            insertable = false, updatable = false)
     private CategoryEntity category;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "property_photo",
             joinColumns = @JoinColumn(name = "property_id"),
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<FileEntity> photos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "city_id", nullable = false)
+    private CityEntity city;
 }

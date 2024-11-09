@@ -19,6 +19,7 @@ import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PropertyService implements IPropertyService {
 
     private final IPropertyRepository iPropertyRepository;
@@ -80,7 +82,26 @@ public class PropertyService implements IPropertyService {
     public Page<PropertyDTOOutput> findAll(PropertyFilterDTO filter, Pageable pageable) {
         Specification<PropertyEntity> specification = this.addFilters(filter);
         Page<PropertyEntity> property = iPropertyRepository.findAll(specification, pageable);
-        return property.map(propertyEntity -> (PropertyDTOOutput) MappingDTO.convertToDto(propertyEntity, new PropertyDTOOutput()));
+        return property.map(propertyEntity -> {
+            try {
+                propertyEntity.getCity().getCountry().setCities(null);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+            PropertyDTOOutput propertyDTOOutput =
+                    (PropertyDTOOutput) MappingDTO.convertToDto(propertyEntity, new PropertyDTOOutput());
+            propertyDTOOutput.setCategoryId(propertyEntity.getCategoryId());
+            try {
+                propertyDTOOutput.setCityId(propertyEntity.getCity().getId());
+                propertyDTOOutput.setCountryId(propertyEntity.getCity().getCountry().getId());
+                propertyDTOOutput.setPhotoUrls(propertyEntity.getPhotos().stream()
+                        .map(FileEntity::getUrl)
+                        .collect(Collectors.toList()));
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+            return propertyDTOOutput;
+        });
     }
 
     @Override
@@ -281,6 +302,15 @@ public class PropertyService implements IPropertyService {
         }
         if (Objects.nonNull(filter.getMaxCapacity())) {
             spec = spec.and(PropertySpecification.shortLessThanOrEqualTo(filter.getMaxCapacity(), "maxCapacity"));
+        }
+        if (Objects.nonNull(filter.getCategoryId())) {
+            spec = spec.and(PropertySpecification.shortEqualTo(filter.getCategoryId(), "categoryId"));
+        }
+        if (Objects.nonNull(filter.getCityId())) {
+            spec = spec.and(PropertySpecification.cityEqualTo(filter.getCityId()));
+        }
+        if (Objects.nonNull(filter.getCountryId())) {
+            spec = spec.and(PropertySpecification.countryEqualTo(filter.getCountryId()));
         }
         spec = addPriceFilters(filter, spec);
         spec = addNumBedsFilters(filter, spec);
