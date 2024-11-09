@@ -90,9 +90,9 @@ public class PropertyService implements IPropertyService {
             }
             PropertyDTOOutput propertyDTOOutput =
                     (PropertyDTOOutput) MappingDTO.convertToDto(propertyEntity, new PropertyDTOOutput());
-            propertyDTOOutput.setCityId(propertyEntity.getCityId());
             propertyDTOOutput.setCategoryId(propertyEntity.getCategoryId());
             try {
+                propertyDTOOutput.setCityId(propertyEntity.getCity().getId());
                 propertyDTOOutput.setCountryId(propertyEntity.getCity().getCountry().getId());
                 propertyDTOOutput.setPhotoUrls(propertyEntity.getPhotos().stream()
                         .map(FileEntity::getUrl)
@@ -307,7 +307,7 @@ public class PropertyService implements IPropertyService {
             spec = spec.and(PropertySpecification.shortEqualTo(filter.getCategoryId(), "categoryId"));
         }
         if (Objects.nonNull(filter.getCityId())) {
-            spec = spec.and(PropertySpecification.shortEqualTo(filter.getCityId(), "cityId"));
+            spec = spec.and(PropertySpecification.cityEqualTo(filter.getCityId()));
         }
         if (Objects.nonNull(filter.getCountryId())) {
             spec = spec.and(PropertySpecification.countryEqualTo(filter.getCountryId()));

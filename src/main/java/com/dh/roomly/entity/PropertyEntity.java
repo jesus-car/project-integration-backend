@@ -70,11 +70,7 @@ public class PropertyEntity {
     )
     private List<FileEntity> photos = new ArrayList<>();
 
-    @Column(name = "CITY_ID", nullable = false)
-    private Short cityId;
-
     @ManyToOne
-    @JoinColumn(name = "city_id", referencedColumnName = "id",
-            insertable = false, updatable = false)
+    @JoinColumn(name = "city_id", nullable = false)
     private CityEntity city;
 }
