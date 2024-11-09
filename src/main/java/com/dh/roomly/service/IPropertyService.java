@@ -3,7 +3,9 @@ package com.dh.roomly.service;
 import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
+import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +16,7 @@ import java.util.List;
 public interface IPropertyService {
 
 
-    PropertyDTOOutput findById(Long id);
+    PropertyDetailsDTOOutput findById(Long id);
 
     void delete(Long id);
 
@@ -24,4 +26,6 @@ public interface IPropertyService {
     PropertyDTOOutput createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException;
 
     List<PropertyDTOOutput> findAllForAdmin();
+
+    PropertyDTOOutput updateProperty(Long propertyId, @Valid PropertyDTOInput dto, List<MultipartFile> images, MultipartFile mainImage) throws IOException;
 }

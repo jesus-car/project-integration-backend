@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ICountryRepository extends JpaRepository<CountryEntity,Short> {
-    @Query("SELECT c FROM CountryEntity c LEFT JOIN FETCH c.states s LEFT JOIN FETCH s.cities")
-    List<CountryEntity> findAllWithStatesAndCities();
-    @Query("SELECT c FROM CountryEntity c LEFT JOIN FETCH c.states s LEFT JOIN FETCH s.cities WHERE c.id = :id")
-    Optional<CountryEntity> findByIdWithStatesAndCities(Short id);
+public interface ICountryRepository extends JpaRepository<CountryEntity, Short> {
+
+    @Query("SELECT DISTINCT c FROM CountryEntity c LEFT JOIN FETCH c.cities")
+    List<CountryEntity> findAllWithCities();
+
+    @Query("SELECT DISTINCT c FROM CountryEntity c LEFT JOIN FETCH c.cities WHERE c.id = :id")
+    Optional<CountryEntity> findByIdWithCities(Short id);
 }

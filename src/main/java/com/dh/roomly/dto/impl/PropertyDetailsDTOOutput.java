@@ -1,12 +1,18 @@
 package com.dh.roomly.dto.impl;
 
+
 import com.dh.roomly.common.Constants;
 import com.dh.roomly.dto.IDTOEntity;
+import com.dh.roomly.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PropertyDTOOutput implements IDTOEntity {
+public class PropertyDetailsDTOOutput implements IDTOEntity {
     private Long id;
 
     @Schema(example = "Hermosa Villa", description = "Nombre de la propiedad. Solo letras con o sin tildes y espacios.")
@@ -60,15 +66,10 @@ public class PropertyDTOOutput implements IDTOEntity {
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     private Short numBathrooms;
 
-    @Size(max = 100, message = "Debe tener un máximo de 100 caracteres")
-    private String ownerName;
+    private UserSimpleDTOOutput owner;
 
-    @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
-    @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
-    private Short categoryId;
+    private CategoryDTOOutput category;
 
     private String mainPhotoUrl;
     private List<String> photoUrls;
-
-    private Short countryId;
 }

@@ -1,9 +1,14 @@
 package com.dh.roomly;
 
 import com.dh.roomly.common.RoleEnum;
+import com.dh.roomly.entity.CityEntity;
 import com.dh.roomly.entity.PermissionEntity;
 import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
+import com.dh.roomly.repository.ICityRepository;
+import com.dh.roomly.entity.*;
+import com.dh.roomly.repository.ICategoryRepository;
+import com.dh.roomly.repository.ICountryRepository;
 import com.dh.roomly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -11,12 +16,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 public class RoomlyApplication {
 	private final UserRepository userRepository;
+	private final ICityRepository cityRepository;
+	private final ICountryRepository countryRepository;
+	private final ICategoryRepository categoryRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(RoomlyApplication.class, args);
@@ -24,6 +34,83 @@ public class RoomlyApplication {
 	@Bean
 	CommandLineRunner commandLineRunner() {
 		return args -> {
+
+			// Crear países latinoamericanos
+			CountryEntity argentina = new CountryEntity();
+			argentina.setName("Argentina");
+
+			CountryEntity mexico = new CountryEntity();
+			mexico.setName("México");
+
+			CountryEntity colombia = new CountryEntity();
+			colombia.setName("Colombia");
+
+			CountryEntity bolivia = new CountryEntity();
+			bolivia.setName("Bolivia");
+
+			countryRepository.saveAll(List.of(argentina, mexico, colombia, bolivia));
+
+			// Crear ciudades y asociarlas con el país
+			CityEntity buenosAires = new CityEntity();
+			buenosAires.setName("Buenos Aires");
+			buenosAires.setCountry(argentina);
+
+			CityEntity cordoba = new CityEntity();
+			cordoba.setName("Córdoba");
+			cordoba.setCountry(argentina);
+
+			argentina.setCities(new HashSet<>(List.of(buenosAires, cordoba)));
+
+			CityEntity ciudadMexico = new CityEntity();
+			ciudadMexico.setName("Ciudad de México");
+			ciudadMexico.setCountry(mexico);
+
+			CityEntity guadalajara = new CityEntity();
+			guadalajara.setName("Guadalajara");
+			guadalajara.setCountry(mexico);
+
+			mexico.setCities(new HashSet<>(List.of(ciudadMexico, guadalajara)));
+
+			CityEntity bogota = new CityEntity();
+			bogota.setName("Bogotá");
+			bogota.setCountry(colombia);
+
+			CityEntity medellin = new CityEntity();
+			medellin.setName("Medellín");
+			medellin.setCountry(colombia);
+
+			colombia.setCities(new HashSet<>(List.of(bogota, medellin)));
+
+			CityEntity laPaz = new CityEntity();
+			laPaz.setName("La Paz");
+			laPaz.setCountry(bolivia);
+
+			CityEntity cochabamba = new CityEntity();
+			cochabamba.setName("Cochabamba");
+			cochabamba.setCountry(bolivia);
+
+			CityEntity santaCruz = new CityEntity();
+			santaCruz.setName("Santa Cruz");
+			santaCruz.setCountry(bolivia);
+
+			colombia.setCities(new HashSet<>(List.of(laPaz, cochabamba, santaCruz)));
+
+			cityRepository.saveAll(List.of(buenosAires, cordoba, ciudadMexico, guadalajara, bogota, medellin, laPaz, cochabamba, santaCruz));
+
+			CategoryEntity categoryPlaya = new CategoryEntity();
+			categoryPlaya.setTitle("Playa");
+			categoryPlaya.setDescription("Propiedades destinadas a actividades de playa.");
+
+			CategoryEntity categoryCampo = new CategoryEntity();
+			categoryCampo.setTitle("Campo");
+			categoryCampo.setDescription("Propiedades destinadas a actividades de campo.");
+
+			CategoryEntity categoryMontana = new CategoryEntity();
+			categoryMontana.setTitle("Montaña");
+			categoryMontana.setDescription("Propiedades destinadas a actividades de montaña.");
+
+			categoryRepository.saveAll(List.of(categoryPlaya, categoryCampo, categoryMontana));
+
 			PermissionEntity readPermission = PermissionEntity.builder()
 					.name("READ")
 					.build();
@@ -53,6 +140,20 @@ public class RoomlyApplication {
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
+//			CityEntity city1 = CityEntity.builder()
+//					.name("La Paz")
+//					.build();
+//
+//			CityEntity city2 = CityEntity.builder()
+//					.name("Cochabamba")
+//					.build();
+//
+//			CityEntity city3 = CityEntity.builder()
+//					.name("Santa Cruz")
+//					.build();
+//
+//			cityRepository.saveAll(Set.of(city1, city2, city3));
+
 			// Create users
 			UserEntity client = UserEntity.builder()
 					.firstName("John")
@@ -64,7 +165,7 @@ public class RoomlyApplication {
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
-					.cityId(Short.parseShort("1"))
+					.city(laPaz)
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
@@ -81,7 +182,7 @@ public class RoomlyApplication {
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
-					.cityId(Short.parseShort("1"))
+					.city(cochabamba)
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)
@@ -98,7 +199,7 @@ public class RoomlyApplication {
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
-					.cityId(Short.parseShort("1"))
+					.city(santaCruz)
 					.isEnabled(true)
 					.isLocked(false)
 					.accountNonExpired(true)

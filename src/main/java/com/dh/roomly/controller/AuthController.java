@@ -23,7 +23,7 @@ public class AuthController {
     private final CompromisedPasswordChecker compromisedPasswordChecker;
 
     @PostMapping("/login")
-    public UserAuthOutput login(@RequestBody UserAuthInput userAuthInput) {
+    public UserAuthOutput login(@Valid @RequestBody UserAuthInput userAuthInput) {
         return userService.login(userAuthInput);
     }
 
