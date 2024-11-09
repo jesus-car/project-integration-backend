@@ -3,6 +3,7 @@ package com.dh.roomly.controller;
 import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
+import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
 import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public class PropertyController {
     private IPropertyService iPropertyService;
 
     @GetMapping("/{propertyId}")
-    public ResponseEntity<PropertyDTOOutput> getProperty(@PathVariable Long propertyId) {
+    public ResponseEntity<PropertyDetailsDTOOutput> getProperty(@PathVariable Long propertyId) {
         return ResponseEntity.ok(this.iPropertyService.findById(propertyId));
     }
 

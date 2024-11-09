@@ -3,6 +3,7 @@ package com.dh.roomly.service;
 import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
+import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,7 @@ import java.util.List;
 public interface IPropertyService {
 
 
-    PropertyDTOOutput findById(Long id);
+    PropertyDetailsDTOOutput findById(Long id);
 
     void delete(Long id);
 
