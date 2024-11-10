@@ -2,11 +2,8 @@ package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.NotFound;
 import com.dh.roomly.dto.common.MappingDTO;
-import com.dh.roomly.dto.impl.PropertyDTOOutput;
+import com.dh.roomly.dto.impl.*;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
-import com.dh.roomly.dto.impl.PropertyDTOInput;
-import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
-import com.dh.roomly.dto.impl.UserSimpleDTOOutput;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.exception.ResourceNotFoundException;
@@ -59,6 +56,15 @@ public class PropertyService implements IPropertyService {
             UserSimpleDTOOutput ownerDTO = getUserSimpleDTOOutput(property);
             propertyDTO.setOwner(ownerDTO);
         }
+        // Asignar manualmente la categoría si no está asignada
+        if (property.getCategory() != null) {
+            CategoryDTOOutput categoryDTO = new CategoryDTOOutput();
+            categoryDTO.setId(property.getCategory().getId());
+            categoryDTO.setTitle(property.getCategory().getTitle());
+            categoryDTO.setDescription(property.getCategory().getDescription());
+            propertyDTO.setCategory(categoryDTO);
+        }
+
         return propertyDTO;
     }
 
