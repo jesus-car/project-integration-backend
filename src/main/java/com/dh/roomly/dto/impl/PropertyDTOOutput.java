@@ -60,8 +60,7 @@ public class PropertyDTOOutput implements IDTOEntity {
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
     private Short numBathrooms;
 
-    @Size(max = 100, message = "Debe tener un máximo de 100 caracteres")
-    private String ownerName;
+    private Long ownerId;
 
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
     @Max(value = 255, message = Constants.NOT_GREATER_THAN_MAX_VALUE_SHORT)
