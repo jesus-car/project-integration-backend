@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.dh.roomly.dto.common.ErrorDetailsDTO;
 import lombok.extern.slf4j.Slf4j;
 
+import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -138,5 +139,14 @@ public class GlobalExceptionHandler {
                 .details(List.of(exception.getMessage()))
                 .message(request.getDescription(false))
                 .build(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(SMTPSendFailedException.class)
+    public ResponseEntity<Object> handleSMTPSendFailedException(SMTPSendFailedException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of(exception.getMessage()))
+                .message(request.getDescription(false))
+                .build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -32,4 +32,5 @@ public class RoleEntity implements Serializable {
             uniqueConstraints = @UniqueConstraint(columnNames = {"role_id","permission_id"})
     )
     private Set<PermissionEntity> permissions = new HashSet<>();
+
 }

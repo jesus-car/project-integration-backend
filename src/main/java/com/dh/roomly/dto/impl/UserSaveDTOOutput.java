@@ -14,7 +14,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSaveOutput implements IDTOEntity {
+public class UserSaveDTOOutput implements IDTOEntity {
     private Long id;
     private String firstName;
     private String lastName;
@@ -24,6 +24,6 @@ public class UserSaveOutput implements IDTOEntity {
     private Short city;
     private Long profilePhotoId;
     private LocalDateTime createdAt;
-    private Set<RoleEntity> roleEntities;
+    private RoleEntity role;
     private String token;
 }

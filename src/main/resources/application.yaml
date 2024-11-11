@@ -53,3 +53,9 @@ cloud:
     credentials:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
+
+email:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}

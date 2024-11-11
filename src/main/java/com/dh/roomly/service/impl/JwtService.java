@@ -1,7 +1,9 @@
 package com.dh.roomly.service.impl;
 
+import com.dh.roomly.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +15,11 @@ import java.util.function.Function;
 import static com.dh.roomly.common.JwtTokenConfig.SECRET_KEY;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
+
+    private final TokenRepository tokenRepository;
+
     protected static final Date DATE_EXPIRATION = new Date(System.currentTimeMillis() + 3600000);
 
     public String getToken(UserDetails user) {
@@ -37,7 +43,11 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+
+        boolean isValidToken = tokenRepository.findByToken(token)
+                .map(tokenEntity -> !tokenEntity.isLoggedOut()).orElse(false);
+
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) && isValidToken);
     }
 
     private Claims getAllClaims(String token) {
