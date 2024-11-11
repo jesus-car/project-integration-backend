@@ -199,6 +199,9 @@ public class PropertyService implements IPropertyService {
                         propertyDTO.setMainPhotoUrl(photoUrls.get(0)); // Asigna la primera foto como main image
                         propertyDTO.setPhotoUrls(photoUrls.subList(1, photoUrls.size())); // Asigna el resto a photoUrls
                     }
+                    if (property.getCity() != null) {
+                        propertyDTO.setCountryId(property.getCity().getCountry().getId());
+                    }
                     return propertyDTO;
                 })
                 .collect(Collectors.toList());
