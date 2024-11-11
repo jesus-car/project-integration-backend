@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -132,5 +133,14 @@ public class GlobalExceptionHandler {
                 .details(List.of(exception.getMessage()))
                 .message(request.getDescription(false))
                 .build(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of(exception.getMessage()))
+                .message(request.getDescription(false))
+                .build(), HttpStatus.UNAUTHORIZED);
     }
 }

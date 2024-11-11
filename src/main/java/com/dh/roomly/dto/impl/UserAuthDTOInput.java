@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAuthInput implements IDTOEntity {
+public class UserAuthDTOInput implements IDTOEntity {
     @NotBlank(message = Constants.NOT_BLANK)
     @Size(max = 256, message = "Must be a maximum of 256 characters")
     @Pattern(

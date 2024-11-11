@@ -14,7 +14,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSaveOutput implements IDTOEntity {
+public class UserSaveDTOOutput implements IDTOEntity {
     private Long id;
     private String firstName;
     private String lastName;

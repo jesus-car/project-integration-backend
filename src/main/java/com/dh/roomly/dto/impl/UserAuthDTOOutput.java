@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserAuthOutput {
+public class UserAuthDTOOutput {
     String token;
     String message;
 }

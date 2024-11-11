@@ -65,6 +65,9 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Set<RoleEntity> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<TokenEntity> tokens;
+
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
     @Column(nullable = false, name = "ENABLED")
