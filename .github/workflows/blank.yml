@@ -12,10 +12,6 @@ jobs:
             EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
             EC2_URL: ${{ secrets.EC2_URL }}
             EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-            AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-            AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-            AWS_REGION: ${{ secrets.AWS_REGION }}
-            AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
 
         steps:
             -   uses: actions/checkout@v4
@@ -26,10 +22,12 @@ jobs:
                     java-version: '17'
             -   name: Set environment variables for build
                 run: |
-                    AWS_ACCESS_KEY=$AWS_ACCESS_KEY
-                    AWS__SECRET_KEY=$AWS_SECRET_KEY
-                    AWS_REGION=$AWS_REGION
-                    AWS_S3_BUCKET=$AWS_S3_BUCKET
+                    AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+                    AWS__SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+                    AWS_REGION=${{ secrets.AWS_REGION }}
+                    AWS_S3_BUCKET= ${{ secrets.AWS_S3_BUCKET }}
+                    EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}
+                    EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
             -   name: Build with Mave
                 run: mvn -q clean package --file pom.xml
 
@@ -59,5 +57,7 @@ jobs:
                         -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
                         -e AWS_REGION=${{ secrets.AWS_REGION }} \
                         -e AWS_S3_BUCKET=${{  secrets.AWS_S3_BUCKET }} \
+                        -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+                        -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
                         jesuscar/ci-demo
                     EOF
