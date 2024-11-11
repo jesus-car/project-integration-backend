@@ -7,9 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -55,17 +53,12 @@ public class UserEntity implements UserDetails {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private FileEntity profilePhoto;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","role_id"})
-    )
-    @Column(nullable = false)
-    private Set<RoleEntity> roles = new HashSet<>();
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity role;
 
     @OneToMany(mappedBy = "user")
+    @Column(nullable = false, name = "TOKENS", columnDefinition = "TEXT")
     private List<TokenEntity> tokens;
 
     @Column(name = "CREATED_AT")

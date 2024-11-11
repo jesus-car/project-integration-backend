@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserServiceImpl userService;
-    private final CompromisedPasswordChecker compromisedPasswordChecker;
 
     @PostMapping("/login")
     public UserAuthDTOOutput login(@Valid @RequestBody UserAuthDTOInput userAuthDTOInput) {
@@ -36,11 +35,6 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserSaveDTOOutput register(@Valid @RequestBody UserSaveDTOInput userSaveDTOInput) {
-        CompromisedPasswordDecision decision = compromisedPasswordChecker.check(userSaveDTOInput.getPassword());
-
-        if (decision.isCompromised()) {
-            throw new IllegalArgumentException("Password is compromised");
-        }
         return userService.register(userSaveDTOInput);
     }
 }

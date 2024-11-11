@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 public class UserUpdateRoleInput {
 
-    private List<Short> roles;
+    private Short roleId;
 }

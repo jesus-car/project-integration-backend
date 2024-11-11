@@ -19,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,8 @@ public class UserServiceImpl {
     private final AuthenticationManager authenticationManager;
     private final IFileService fileService;
     private final IEmailService emailService;
+    private final CompromisedPasswordChecker compromisedPasswordChecker;
+
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -63,27 +67,13 @@ public class UserServiceImpl {
                 .accountNonLocked(true)
                 .build();
 
-        // Set roles
-        Set<RoleEntity> roleEntities = new HashSet<>();
-        roleRepository.findByName(RoleEnum.ROLE_CLIENT).ifPresent(roleEntities::add);
+        CompromisedPasswordDecision decision = compromisedPasswordChecker.check(userSaveDTOInput.getPassword());
 
-        if (userEntity.isAdmin())
-            roleRepository.findByName(RoleEnum.ROLE_ADMIN).ifPresent(roleEntities::add);
-
-        if (userEntity.isSeller())
-            roleRepository.findByName(RoleEnum.ROLE_SELLER).ifPresent(roleEntities::add);
-
-        userEntity.setRoles(roleEntities);
-
-        // Encode password and set creation date
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        userEntity.setCreatedAt(LocalDateTime.now());
-
-        // Set city
-        userEntity.setCity(cityRepository.findById(userSaveDTOInput.getCityId())
-                .orElseThrow(() -> new ResourceNotFoundException("City not found")));
-
-        UserEntity user = userRepository.save(userEntity);
+        if (decision.isCompromised()) {
+            throw new IllegalArgumentException("Password is compromised");
+        }
+        // Set fields
+        UserEntity user = setFields(userSaveDTOInput, userEntity);
 
         emailService.sendEmail(user.getEmail(), "Welcome to Roomly", "Welcome to Roomly, " + user.getFirstName() + " " + user.getLastName() + "!");
 
@@ -97,9 +87,37 @@ public class UserServiceImpl {
                 .identificationNumber(user.getIdentificationNumber())
                 .phoneNumber(user.getPhoneNumber())
                 .createdAt(user.getCreatedAt())
-                .roleEntities(user.getRoles())
+                .role(user.getRole())
                 .token(jwt)
                 .build();
+    }
+
+    private UserEntity setFields(UserSaveDTOInput userSaveDTOInput, UserEntity userEntity) {
+        RoleEntity currentRole = roleRepository.findByName(RoleEnum.ROLE_CLIENT)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+
+        if (userEntity.isSeller())
+            currentRole = roleRepository.findByName(RoleEnum.ROLE_SELLER)
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+
+        if (userEntity.isAdmin())
+            currentRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+
+        userEntity.setRole(currentRole);
+
+        // Encode password and set creation date
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        userEntity.setCreatedAt(LocalDateTime.now());
+
+        // Set city
+        userEntity.setCity(cityRepository.findById(userSaveDTOInput.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("City not found")));
+
+        return userRepository.save(userEntity);
     }
 
 
@@ -158,12 +176,6 @@ public class UserServiceImpl {
 
 
     @Transactional
-    public UserEntity findByEmail(String email) throws RuntimeException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException(Constants.USER_NOT_FOUND));
-    }
-
-    @Transactional
     public UserPatchImgDTOOutput updateUserProfileImage(Long id, MultipartFile image) throws IOException {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
@@ -196,7 +208,7 @@ public class UserServiceImpl {
                         .city(user.getCity().getName())
                         .profilePhoto(user.getProfilePhoto())
                         .createdAt(user.getCreatedAt())
-                        .roleEntities(user.getRoles())
+                        .role(user.getRole())
                         .build());
     }
 
@@ -205,13 +217,10 @@ public class UserServiceImpl {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
-        Set<RoleEntity> roleEntities = new HashSet<>();
-        roles.getRoles().forEach(role -> {
-            RoleEntity localRole = roleRepository.findById(role).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-            roleEntities.add(localRole);
-        });
+        RoleEntity newRole = roleRepository.findById(roles.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        user.setRoles(roleEntities);
+        user.setRole(newRole);
         userRepository.save(user);
         return "User role updated successfully";
     }

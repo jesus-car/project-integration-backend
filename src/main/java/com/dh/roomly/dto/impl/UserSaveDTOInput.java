@@ -50,5 +50,9 @@ public class UserSaveDTOInput implements IDTOEntity {
     private String email;
     @NotBlank(message = Constants.NOT_BLANK)
     @Size(min = 8, max = 128, message = "La contraseña debe tener entre 8 y 128 caracteres")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "La contraseña debe tener al menos una letra mayúscula, una minúscula, un número y un carácter especial"
+    )
     private String password;
 }

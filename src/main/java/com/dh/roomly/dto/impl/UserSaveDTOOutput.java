@@ -24,6 +24,6 @@ public class UserSaveDTOOutput implements IDTOEntity {
     private Short city;
     private Long profilePhotoId;
     private LocalDateTime createdAt;
-    private Set<RoleEntity> roleEntities;
+    private RoleEntity role;
     private String token;
 }
