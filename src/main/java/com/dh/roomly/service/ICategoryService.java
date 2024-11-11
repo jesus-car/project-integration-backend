@@ -2,8 +2,9 @@ package com.dh.roomly.service;
 
 import com.dh.roomly.dto.impl.CategoryDTOInput;
 import com.dh.roomly.dto.impl.CategoryDTOOutput;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
+import java.io.IOException;
 import java.util.List;
 
 public interface ICategoryService {
@@ -11,5 +12,5 @@ public interface ICategoryService {
     CategoryDTOOutput findCategoryById(Short id);
     List<CategoryDTOOutput> findAllCategories();
 
-    CategoryDTOOutput createCategory(CategoryDTOInput categoryDTOInput);
+    CategoryDTOOutput createCategory(CategoryDTOInput categoryDTOInput, MultipartFile image) throws IOException;
 }
