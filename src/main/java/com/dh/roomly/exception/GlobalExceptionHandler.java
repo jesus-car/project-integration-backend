@@ -141,15 +141,6 @@ public class GlobalExceptionHandler {
                 .build(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException exception, WebRequest request) {
-        return new ResponseEntity<>(ErrorDetailsDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .details(List.of(exception.getMessage()))
-                .message(request.getDescription(false))
-                .build(), HttpStatus.UNAUTHORIZED);
-    }
-
     @ExceptionHandler(SMTPSendFailedException.class)
     public ResponseEntity<Object> handleSMTPSendFailedException(SMTPSendFailedException exception, WebRequest request) {
         return new ResponseEntity<>(ErrorDetailsDTO.builder()
