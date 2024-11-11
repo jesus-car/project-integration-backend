@@ -2,12 +2,16 @@ package com.dh.roomly.controller;
 
 import com.dh.roomly.dto.impl.CategoryDTOInput;
 import com.dh.roomly.dto.impl.CategoryDTOOutput;
+import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.ICategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @AllArgsConstructor
@@ -27,9 +31,13 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findAllCategories());
     }
 
-    @PostMapping("/new")
-    public ResponseEntity<CategoryDTOOutput> createCategory(@RequestBody CategoryDTOInput categoryDTOInput) {
-        CategoryDTOOutput categoryDTOOutput = categoryService.createCategory(categoryDTOInput);
+    @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CategoryDTOOutput> createCategory(@RequestPart CategoryDTOInput categoryDTOInput,
+                                                            @RequestParam("image") MultipartFile image) throws IOException {
+        if (image == null || image.isEmpty()) {
+            throw new MissingImageException("La imagen es obligatoria y no puede estar vacía.");
+        }
+        CategoryDTOOutput categoryDTOOutput = categoryService.createCategory(categoryDTOInput, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryDTOOutput);
     }
 }

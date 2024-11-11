@@ -65,6 +65,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> badCredentialsHandling(BadCredentialsException exception, WebRequest request){
+        return new ResponseEntity<>(this.buildSingleErrorDetailsDTO(exception, request), HttpStatus.UNAUTHORIZED);
+    }
+
     private ErrorDetailsDTO buildSingleErrorDetailsDTO(Exception exception, WebRequest request){
         return ErrorDetailsDTO.builder()
                 .timestamp(LocalDateTime.now())

@@ -9,9 +9,6 @@ jobs:
     test:
         runs-on: ubuntu-latest
         env:
-            EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-            EC2_URL: ${{ secrets.EC2_URL }}
-            EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
             AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
             AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             AWS_REGION: ${{ secrets.AWS_REGION }}
