@@ -4,6 +4,7 @@ import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
+import com.dh.roomly.exception.InvalidImageException;
 import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.validation.Valid;
@@ -78,7 +79,14 @@ public class PropertyController {
     public ResponseEntity<PropertyDTOOutput> updateProperty(@PathVariable Long propertyId,
                                                             @Valid @RequestPart("property") PropertyDTOInput dto,
                                                             @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
-                                                            @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
+                                                            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                                                            @RequestParam(value = "mainImageUrl", required = false) String mainImageUrl,
+                                                            @RequestParam(value = "imageUrls", required = false) List<String> imageUrls) throws IOException {
+        // Validación de conflicto entre imágenes en bytes y URLs
+        if ((mainImage != null || images != null) && (mainImageUrl != null || imageUrls != null)) {
+            throw new InvalidImageException("No se pueden enviar imágenes tanto en bytes como en URLs al mismo tiempo.");
+        }
+
         // Validación de imágenes adicionales (si se proporcionan)
         if (images != null && (images.size() < 4 || images.size() > 5)) {
             throw new MissingImageException("Se deben proporcionar entre 4 y 5 imágenes adicionales si se envían.");
@@ -87,7 +95,7 @@ public class PropertyController {
             throw new MissingImageException("Cada imagen adicional debe ser no vacía.");
         }
 
-        PropertyDTOOutput updatedProperty = iPropertyService.updateProperty(propertyId, dto,images,mainImage);
+        PropertyDTOOutput updatedProperty = iPropertyService.updateProperty(propertyId, dto, images, mainImage, mainImageUrl, imageUrls);
         return ResponseEntity.ok(updatedProperty);
     }
 }
