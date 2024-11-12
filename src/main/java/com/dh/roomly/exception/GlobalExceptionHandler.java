@@ -149,4 +149,13 @@ public class GlobalExceptionHandler {
                 .message(request.getDescription(false))
                 .build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(InvalidImageException.class)
+    public ResponseEntity<Object> handleInvalidImageException(InvalidImageException exception, WebRequest request) {
+        return new ResponseEntity<>(ErrorDetailsDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .details(List.of(exception.getMessage()))
+                .message(request.getDescription(false))
+                .build(), HttpStatus.BAD_REQUEST);
+    }
 }

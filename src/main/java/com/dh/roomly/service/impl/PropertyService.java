@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -209,7 +210,12 @@ public class PropertyService implements IPropertyService {
 
     @Override
     @Transactional
-    public PropertyDTOOutput updateProperty(Long propertyId, PropertyDTOInput propertyDTO, List<MultipartFile> images, MultipartFile mainImage) throws IOException {
+    public PropertyDTOOutput updateProperty(Long propertyId,
+                                            PropertyDTOInput propertyDTO,
+                                            List<MultipartFile> images,
+                                            MultipartFile mainImage,
+                                            String mainImageUrl,
+                                            List<String> imageUrls) throws IOException {
         // Verificar la existencia de la propiedad
         PropertyEntity property = this.findPropertyEntityById(propertyId);
 
@@ -241,8 +247,8 @@ public class PropertyService implements IPropertyService {
         // Asignar la categoría
         property.setCategory(category); //asociamoes la categoria
 
-        // Manejar las fotos
-        handlePropertyImages(property, images, mainImage);
+        // Manejar las fotos: primero verifica si las imágenes son archivos (bytes) o URLs
+        handlePropertyImages(property, images, mainImage, mainImageUrl, imageUrls);
 
         // Guardar los cambios en la propiedad y en el propietario
         PropertyEntity updatedProperty = iPropertyRepository.save(property);
@@ -255,48 +261,66 @@ public class PropertyService implements IPropertyService {
             dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(property.getPhotos().get(0))); // Asignar primera imagen
             dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1, property.getPhotos().size()))); // Asignar el resto
         }
-
-        dtoOutput.setOwnerId(owner.getId()); // Asignar ownerId al DTO de salida
-        dtoOutput.setCategoryId(category.getId());// Asignar el categoryId al DTO de salida
-        dtoOutput.setCountryId(city.getCountry().getId());// Asignar el countryId al DTO de salida
+        // Asignar los id al DTO de salida
+        dtoOutput.setOwnerId(owner.getId());
+        dtoOutput.setCategoryId(category.getId());
+        dtoOutput.setCountryId(city.getCountry().getId());
 
         return dtoOutput;
     }
 
-    private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images, MultipartFile mainImage) throws IOException {
-        // Obtener las fotos actuales
-        List<FileEntity> currentPhotos = property.getPhotos();
+    private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images,
+                                      MultipartFile mainImage, String mainImageUrl, List<String> imagesUrls) throws IOException {
+        // Caso 1: Se envía la imagen principal (en bytes o URL)
+        if (mainImage != null || mainImageUrl != null) {
+            // Reemplazar la imagen principal
+            FileEntity mainImageEntity = null;
 
-        if (mainImage != null) {
-            // Si se envía una mainImage, reemplazamos la primera imagen
-            FileEntity mainPhoto = uploadPropertyPhoto(mainImage); // Cargar la imagen principal
-            if (currentPhotos.isEmpty()) {
-                // Si no hay fotos, agregamos la nueva como la primera foto
-                currentPhotos.add(mainPhoto);
+            if (mainImage != null) {
+                // Si se recibe una imagen en bytes, subimos a S3 y creamos la entidad
+                mainImageEntity = fileService.uploadFile(mainImage);
+            } else if (mainImageUrl != null) {
+                // Si se recibe una URL, usamos la entidad existente
+                mainImageEntity = new FileEntity();
+                mainImageEntity.setUrl(mainImageUrl);
+            }
+
+            // Si ya hay una imagen principal (en la posición 0), la reemplazamos
+            if (!property.getPhotos().isEmpty()) {
+                property.getPhotos().set(0, mainImageEntity);  // Reemplazamos la imagen principal en la posición 0
             } else {
-                // Si ya hay fotos, reemplazamos la primera
-                currentPhotos.set(0, mainPhoto);
+                // Si no hay ninguna foto, agregamos la imagen principal como la primera
+                property.getPhotos().add(0, mainImageEntity);
             }
         }
 
+        // Caso 2: Se envían imágenes adicionales (en bytes), reemplazando las existentes
         if (images != null && !images.isEmpty()) {
-            // Si se envían otras imágenes (no la mainImage), agregamos o reemplazamos las imágenes siguientes
-            List<FileEntity> newPhotos = uploadPropertyPhotos(images); // Cargar las nuevas imágenes
-            if (currentPhotos.isEmpty()) {
-                // Si no hay fotos, agregamos todas las nuevas imágenes
-                currentPhotos.addAll(newPhotos);
-            } else {
-                // Si ya hay fotos, reemplazamos las imágenes después de la primera
-                if (currentPhotos.size() > 1) {
-                    currentPhotos.subList(1, currentPhotos.size()).clear();
-                }
-                currentPhotos.addAll(newPhotos);
-            }
+            // Subimos las nuevas imágenes adicionales en bytes
+            List<FileEntity> additionalImages = fileService.uploadFiles(images);
+
+            // Reemplazamos las imágenes existentes (excepto la principal)
+            property.getPhotos().subList(1, property.getPhotos().size()).clear(); // Eliminamos las fotos existentes (sin contar la principal)
+            property.getPhotos().addAll(additionalImages); // Agregamos las nuevas imágenes al final de la lista
         }
 
-        // Si no se envía ninguna imagen (mainImage o images), las fotos permanecen igual
-        property.setPhotos(currentPhotos);
+        // Caso 3: Se envían imágenes adicionales como URLs, reemplazando las existentes
+        if (imagesUrls != null && !imagesUrls.isEmpty()) {
+            List<FileEntity> imageEntities = new ArrayList<>();
+            for (String imageUrl : imagesUrls) {
+                FileEntity imageEntity = new FileEntity();
+                imageEntity.setUrl(imageUrl);
+                imageEntities.add(imageEntity);
+            }
+
+            // Reemplazamos las imágenes existentes (excepto la principal)
+            property.getPhotos().subList(1, property.getPhotos().size()).clear(); // Eliminamos las fotos existentes (sin contar la principal)
+            property.getPhotos().addAll(imageEntities); // Agregamos las nuevas imágenes al final de la lista
+        }
+
+        // Caso 4: Si no se envían ni imagen principal ni imágenes adicionales, no hacemos cambios
     }
+
 
     private PropertyEntity findPropertyEntityById(Long id){
         return this.iPropertyRepository.findById(String.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(
