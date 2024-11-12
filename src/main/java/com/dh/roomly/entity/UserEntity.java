@@ -58,7 +58,7 @@ public class UserEntity implements UserDetails {
     private RoleEntity role;
 
     @OneToMany(mappedBy = "user")
-    @Column(nullable = false, name = "TOKENS", columnDefinition = "TEXT")
+    @Column(nullable = false, name = "TOKENS")
     private List<TokenEntity> tokens;
 
     @Column(name = "CREATED_AT")

@@ -9,9 +9,9 @@ import com.dh.roomly.entity.TokenEntity;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICityRepository;
-import com.dh.roomly.repository.RoleRepository;
-import com.dh.roomly.repository.TokenRepository;
-import com.dh.roomly.repository.UserRepository;
+import com.dh.roomly.repository.IRoleRepository;
+import com.dh.roomly.repository.ITokenRepository;
+import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.service.IEmailService;
 import com.dh.roomly.service.IFileService;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl {
 
-    private final RoleRepository roleRepository;
+    private final IRoleRepository IRoleRepository;
     private final ICityRepository cityRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -45,9 +43,9 @@ public class UserServiceImpl {
     private final CompromisedPasswordChecker compromisedPasswordChecker;
 
 
-    private final UserRepository userRepository;
+    private final IUserRepository IUserRepository;
     private final JwtService jwtService;
-    private final TokenRepository tokenRepository;
+    private final ITokenRepository ITokenRepository;
 
     @Transactional
     public UserSaveDTOOutput register(UserSaveDTOInput userSaveDTOInput) {
@@ -73,11 +71,13 @@ public class UserServiceImpl {
             throw new IllegalArgumentException("Password is compromised");
         }
         // Set fields
-        UserEntity user = setFields(userSaveDTOInput, userEntity);
+        UserEntity user = setFieldsAndSaveUser(userSaveDTOInput, userEntity);
 
         emailService.sendEmail(user.getEmail(), "Welcome to Roomly", "Welcome to Roomly, " + user.getFirstName() + " " + user.getLastName() + "!");
 
-        String jwt = saveUserToken(user);
+        String jwt = jwtService.getToken(user);
+
+        saveUserToken(user, jwt);
 
         return UserSaveDTOOutput.builder()
                 .id(user.getId())
@@ -92,18 +92,18 @@ public class UserServiceImpl {
                 .build();
     }
 
-    private UserEntity setFields(UserSaveDTOInput userSaveDTOInput, UserEntity userEntity) {
-        RoleEntity currentRole = roleRepository.findByName(RoleEnum.ROLE_CLIENT)
+    private UserEntity setFieldsAndSaveUser(UserSaveDTOInput userSaveDTOInput, UserEntity userEntity) {
+        RoleEntity currentRole = IRoleRepository.findByName(RoleEnum.ROLE_CLIENT)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
 
         if (userEntity.isSeller())
-            currentRole = roleRepository.findByName(RoleEnum.ROLE_SELLER)
+            currentRole = IRoleRepository.findByName(RoleEnum.ROLE_OWNER)
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
 
         if (userEntity.isAdmin())
-            currentRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
+            currentRole = IRoleRepository.findByName(RoleEnum.ROLE_ADMIN)
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
 
@@ -117,7 +117,7 @@ public class UserServiceImpl {
         userEntity.setCity(cityRepository.findById(userSaveDTOInput.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("City not found")));
 
-        return userRepository.save(userEntity);
+        return IUserRepository.save(userEntity);
     }
 
 
@@ -126,11 +126,13 @@ public class UserServiceImpl {
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthDTOInput.getEmail(), userAuthDTOInput.getPassword()));
 
-        UserEntity user = userRepository.findByEmail(userAuthDTOInput.getEmail())
+        UserEntity user = IUserRepository.findByEmail(userAuthDTOInput.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
         revokeAllTokenByUser(user);
-        String jwt = saveUserToken(user);
+        String jwt = jwtService.getToken(user);
+
+        saveUserToken(user, jwt);
 
         return UserAuthDTOOutput.builder()
                 .token(jwt)
@@ -143,47 +145,45 @@ public class UserServiceImpl {
             throw new IllegalArgumentException("Token is null");
         }
 
-        TokenEntity tokenEntity = tokenRepository.findByToken(token).orElse(null);
+        TokenEntity tokenEntity = ITokenRepository.findByToken(token).orElse(null);
         if(tokenEntity != null) {
             tokenEntity.setLoggedOut(true);
-            tokenRepository.save(tokenEntity);
+            ITokenRepository.save(tokenEntity);
         }
 
         return "Logout successful";
     }
 
     private void revokeAllTokenByUser(UserEntity user) {
-        List<TokenEntity> validTokensListByUser = tokenRepository.findAllTokenByUser(user.getId());
+        List<TokenEntity> validTokensListByUser = ITokenRepository.findAllTokenByUser(user.getId());
 
         if (!validTokensListByUser.isEmpty()) {
             validTokensListByUser.forEach(tokenEntity -> tokenEntity.setLoggedOut(true));
         }
 
-        tokenRepository.saveAll(validTokensListByUser);
+        ITokenRepository.saveAll(validTokensListByUser);
     }
 
-    private String saveUserToken(UserEntity user) {
-        String jwt = jwtService.getToken(user);
+    private void saveUserToken(UserEntity user, String jwt) {
         TokenEntity tokenEntity = TokenEntity.builder()
                 .token(jwt)
                 .user(user)
                 .loggedOut(false)
                 .build();
 
-        tokenRepository.save(tokenEntity);
-        return jwt;
+        ITokenRepository.save(tokenEntity);
     }
 
 
     @Transactional
     public UserPatchImgDTOOutput updateUserProfileImage(Long id, MultipartFile image) throws IOException {
-        UserEntity user = userRepository.findById(id)
+        UserEntity user = IUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
         FileEntity fileEntity = uploadUserProfileImage(image);
 
         user.setProfilePhoto(fileEntity);
-        userRepository.save(user);
+        IUserRepository.save(user);
 
         return UserPatchImgDTOOutput.builder()
                 .message("Profile image updated successfully")
@@ -197,7 +197,7 @@ public class UserServiceImpl {
 
     @Transactional(readOnly = true)
     public Page<UserGetDTOOutput> findAll(Pageable pageable) {
-        return userRepository.findAll(pageable)
+        return IUserRepository.findAll(pageable)
                 .map(user -> UserGetDTOOutput.builder()
                         .id(user.getId())
                         .firstName(user.getFirstName())
@@ -214,14 +214,14 @@ public class UserServiceImpl {
 
     @Transactional
     public String updateUserRole(Long id, UserUpdateRoleInput roles) {
-        UserEntity user = userRepository.findById(id)
+        UserEntity user = IUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
-        RoleEntity newRole = roleRepository.findById(roles.getRoleId())
+        RoleEntity newRole = IRoleRepository.findById(roles.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         user.setRole(newRole);
-        userRepository.save(user);
+        IUserRepository.save(user);
         return "User role updated successfully";
     }
 }

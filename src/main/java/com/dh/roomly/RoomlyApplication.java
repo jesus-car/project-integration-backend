@@ -9,7 +9,7 @@ import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.ICountryRepository;
-import com.dh.roomly.repository.UserRepository;
+import com.dh.roomly.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +23,7 @@ import java.util.Set;
 @SpringBootApplication
 @RequiredArgsConstructor
 public class RoomlyApplication {
-	private final UserRepository userRepository;
+	private final IUserRepository IUserRepository;
 	private final ICityRepository cityRepository;
 	private final ICountryRepository countryRepository;
 	private final ICategoryRepository categoryRepository;
@@ -127,16 +127,19 @@ public class RoomlyApplication {
 			// Create roles
 			RoleEntity clientRoleEntity = RoleEntity.builder()
 					.name(RoleEnum.ROLE_CLIENT)
+					.description("Cliente")
 					.permissions(Set.of(readPermission, updatePermission, deletePermission, writePermission))
 					.build();
 
 			RoleEntity sellerRoleEntity = RoleEntity.builder()
-					.name(RoleEnum.ROLE_SELLER)
+					.name(RoleEnum.ROLE_OWNER)
+					.description("Propietario")
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
 			RoleEntity adminRoleEntity = RoleEntity.builder()
 					.name(RoleEnum.ROLE_ADMIN)
+					.description("Administrador")
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
@@ -192,7 +195,7 @@ public class RoomlyApplication {
 					.credentialsNonExpired(true)
 					.build();
 
-			userRepository.saveAll(Set.of(client, seller, admin));
+			IUserRepository.saveAll(Set.of(client, seller, admin));
 		};
 	}
 };

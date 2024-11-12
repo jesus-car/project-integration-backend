@@ -10,7 +10,7 @@ import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.IPropertyRepository;
-import com.dh.roomly.repository.UserRepository;
+import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
@@ -37,7 +37,7 @@ public class PropertyService implements IPropertyService {
     private final IFileService fileService;
     private final ICategoryRepository categoryRepository;
     private final ICityRepository cityRepository;
-    private final UserRepository userRepository;
+    private final IUserRepository IUserRepository;
 
     @Override
     @Transactional
@@ -121,7 +121,7 @@ public class PropertyService implements IPropertyService {
                 .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
 
         // Verificar la existencia del propietario (usuario) y obtener la entidad del usuario
-        UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
+        UserEntity owner = IUserRepository.findById(propertyDTO.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
         // Verificar la existencia de la categoria y obtener la entidad
         CategoryEntity category = categoryRepository.findById(propertyDTO.getCategoryId())
@@ -142,7 +142,7 @@ public class PropertyService implements IPropertyService {
 
         // Asociar la propiedad con el usuario y guardar el usuario
         owner.getProperties().add(savedProperty);
-        userRepository.save(owner);
+        IUserRepository.save(owner);
 
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
         // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
@@ -220,7 +220,7 @@ public class PropertyService implements IPropertyService {
         // Verificar la existencia de la ciudad y del propietario
         CityEntity city = cityRepository.findById(propertyDTO.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
-        UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
+        UserEntity owner = IUserRepository.findById(propertyDTO.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
         // Verificar la existencia de la categoria y obtener la entidad
         CategoryEntity category = categoryRepository.findById(propertyDTO.getCategoryId())
@@ -247,7 +247,7 @@ public class PropertyService implements IPropertyService {
         // Guardar los cambios en la propiedad y en el propietario
         PropertyEntity updatedProperty = iPropertyRepository.save(property);
         owner.getProperties().add(updatedProperty);
-        userRepository.save(owner);
+        IUserRepository.save(owner);
 
         // Convertir a DTO de salida y asignar URLs de fotos
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(updatedProperty, new PropertyDTOOutput());

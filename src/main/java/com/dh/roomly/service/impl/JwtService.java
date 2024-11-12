@@ -1,6 +1,7 @@
 package com.dh.roomly.service.impl;
 
-import com.dh.roomly.repository.TokenRepository;
+import com.dh.roomly.entity.UserEntity;
+import com.dh.roomly.repository.ITokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +19,25 @@ import static com.dh.roomly.common.JwtTokenConfig.SECRET_KEY;
 @RequiredArgsConstructor
 public class JwtService {
 
-    private final TokenRepository tokenRepository;
+    private final ITokenRepository ITokenRepository;
 
     protected static final Date DATE_EXPIRATION = new Date(System.currentTimeMillis() + 3600000);
 
-    public String getToken(UserDetails user) {
+    public String getToken(UserEntity user) {
         // Aca se agrega propiedades extras al token si es necesario
-        return getToken(new HashMap<>(), user);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("firstName", user.getFirstName());
+        extraClaims.put("lastName", user.getLastName());
+        extraClaims.put("role", user.getRole().getName());
+        extraClaims.put("email", user.getEmail());
+
+        return getToken(extraClaims, user);
     }
 
-    private String getToken(Map<String, Object> extraClaims, UserDetails user) {
+    private String getToken(Map<String, Object> extraClaims, UserEntity user) {
         return Jwts.builder()
                 .claims(extraClaims)
-                .subject(user.getUsername())
+                .subject(user.getId().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(DATE_EXPIRATION)
                 .signWith(SECRET_KEY)
@@ -44,7 +51,7 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
 
-        boolean isValidToken = tokenRepository.findByToken(token)
+        boolean isValidToken = ITokenRepository.findByToken(token)
                 .map(tokenEntity -> !tokenEntity.isLoggedOut()).orElse(false);
 
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) && isValidToken);

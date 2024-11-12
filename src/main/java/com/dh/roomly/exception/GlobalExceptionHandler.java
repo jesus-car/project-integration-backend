@@ -2,7 +2,6 @@ package com.dh.roomly.exception;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.dh.roomly.dto.common.ErrorDetailsDTO;
 import lombok.extern.slf4j.Slf4j;
