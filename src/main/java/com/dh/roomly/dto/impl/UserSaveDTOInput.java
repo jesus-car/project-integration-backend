@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSaveInput implements IDTOEntity {
+public class UserSaveDTOInput implements IDTOEntity {
 
     @NotBlank(message = Constants.NOT_BLANK)
     @Size(max = 256, message = "Must be a maximum of 256 characters")
@@ -45,10 +45,14 @@ public class UserSaveInput implements IDTOEntity {
             regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
             message = "Formato de email inválido"
     )
-    @Size(max = 256, message = "Must be a maximum of 256 characters")
+    @Size(max = 100, message = "Must be a maximum of 100 characters")
     @IsValidEmail
     private String email;
     @NotBlank(message = Constants.NOT_BLANK)
-    @Size(min = 8, max = 128, message = "La contraseña debe tener entre 8 y 128 caracteres")
+    @Size(min = 8, max = 64, message = "La contraseña debe tener entre 8 y 64 caracteres")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "La contraseña debe tener al menos una letra mayúscula, una minúscula, un número y un carácter especial"
+    )
     private String password;
 }

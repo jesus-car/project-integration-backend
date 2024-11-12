@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserUpdateRoleInput {
-
-    private Short roleId;
+public class UserAuthDTOOutput {
+    String token;
+    String message;
 }

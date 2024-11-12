@@ -9,7 +9,7 @@ import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.ICountryRepository;
-import com.dh.roomly.repository.UserRepository;
+import com.dh.roomly.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +23,7 @@ import java.util.Set;
 @SpringBootApplication
 @RequiredArgsConstructor
 public class RoomlyApplication {
-	private final UserRepository userRepository;
+	private final IUserRepository IUserRepository;
 	private final ICityRepository cityRepository;
 	private final ICountryRepository countryRepository;
 	private final ICategoryRepository categoryRepository;
@@ -127,32 +127,21 @@ public class RoomlyApplication {
 			// Create roles
 			RoleEntity clientRoleEntity = RoleEntity.builder()
 					.name(RoleEnum.ROLE_CLIENT)
+					.description("Cliente")
 					.permissions(Set.of(readPermission, updatePermission, deletePermission, writePermission))
 					.build();
 
 			RoleEntity sellerRoleEntity = RoleEntity.builder()
-					.name(RoleEnum.ROLE_SELLER)
+					.name(RoleEnum.ROLE_OWNER)
+					.description("Propietario")
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
 
 			RoleEntity adminRoleEntity = RoleEntity.builder()
 					.name(RoleEnum.ROLE_ADMIN)
+					.description("Administrador")
 					.permissions(Set.of(readPermission, writePermission, deletePermission, updatePermission))
 					.build();
-
-//			CityEntity city1 = CityEntity.builder()
-//					.name("La Paz")
-//					.build();
-//
-//			CityEntity city2 = CityEntity.builder()
-//					.name("Cochabamba")
-//					.build();
-//
-//			CityEntity city3 = CityEntity.builder()
-//					.name("Santa Cruz")
-//					.build();
-//
-//			cityRepository.saveAll(Set.of(city1, city2, city3));
 
 			// Create users
 			UserEntity client = UserEntity.builder()
@@ -161,7 +150,7 @@ public class RoomlyApplication {
 					.username("pepelucho")
 					.email("jhon.doe@asd.com")
 					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(clientRoleEntity))
+					.role(clientRoleEntity)
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
@@ -178,7 +167,7 @@ public class RoomlyApplication {
 					.username("pepelucho")
 					.email("admin.admin")
 					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(sellerRoleEntity))
+					.role(sellerRoleEntity)
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
@@ -195,7 +184,7 @@ public class RoomlyApplication {
 					.username("pepelucho")
 					.email("moderator.moderator")
 					.password("$2a$10$B2c3eYB/VFal9VptzHDVF.9jwf847aQbXOyJHT4ZfiFa3nwqJwg2K")
-					.roles(Set.of(adminRoleEntity))
+					.role(adminRoleEntity)
 					.identificationNumber(1234L)
 					.typeId(Short.parseShort("2"))
 					.phoneNumber(12345)
@@ -206,7 +195,7 @@ public class RoomlyApplication {
 					.credentialsNonExpired(true)
 					.build();
 
-			userRepository.saveAll(Set.of(client, seller, admin));
+			IUserRepository.saveAll(Set.of(client, seller, admin));
 		};
 	}
 };

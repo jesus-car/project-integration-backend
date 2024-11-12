@@ -4,6 +4,7 @@ import com.dh.roomly.dto.impl.PropertyDTOOutput;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.dto.impl.PropertyDTOInput;
 import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
+import com.dh.roomly.exception.InvalidImageException;
 import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.IPropertyService;
 import jakarta.validation.Valid;
@@ -78,16 +79,24 @@ public class PropertyController {
     public ResponseEntity<PropertyDTOOutput> updateProperty(@PathVariable Long propertyId,
                                                             @Valid @RequestPart("property") PropertyDTOInput dto,
                                                             @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
-                                                            @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
-        // Validación de imágenes adicionales (si se proporcionan)
-        if (images != null && (images.size() < 4 || images.size() > 5)) {
-            throw new MissingImageException("Se deben proporcionar entre 4 y 5 imágenes adicionales si se envían.");
+                                                            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                                                            @RequestParam(value = "mainImageUrl", required = false) String mainImageUrl,
+                                                            @RequestParam(value = "imageUrls", required = false) List<String> imageUrls) throws IOException {
+        // Validación de conflicto en mainImage (bytes y URL no deben enviarse simultáneamente)
+        if (mainImage != null && mainImageUrl != null) {
+            throw new InvalidImageException("No se puede enviar la imagen principal en bytes y en URL al mismo tiempo.");
+        }
+        // Contar el total de imágenes adicionales proporcionadas (en bytes y URLs)
+        int totalImages = (images != null ? images.size() : 0) + (imageUrls != null ? imageUrls.size() : 0);
+        // Validación para la lista de imágenes (debe contener entre 4 y 5 imágenes si se proporcionan)
+        if (totalImages > 0 && (totalImages < 4 || totalImages > 5)) {
+            throw new MissingImageException("La lista de imágenes adicionales debe contener entre 4 y 5 imágenes en total.");
         }
         if (images != null && images.stream().anyMatch(MultipartFile::isEmpty)) {
             throw new MissingImageException("Cada imagen adicional debe ser no vacía.");
         }
 
-        PropertyDTOOutput updatedProperty = iPropertyService.updateProperty(propertyId, dto,images,mainImage);
+        PropertyDTOOutput updatedProperty = iPropertyService.updateProperty(propertyId, dto, images, mainImage, mainImageUrl, imageUrls);
         return ResponseEntity.ok(updatedProperty);
     }
 }

@@ -2,18 +2,17 @@ package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.NotFound;
 import com.dh.roomly.dto.common.MappingDTO;
-import com.dh.roomly.dto.impl.PropertyDTOOutput;
+import com.dh.roomly.dto.impl.*;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
-import com.dh.roomly.dto.impl.PropertyDTOInput;
-import com.dh.roomly.dto.impl.PropertyDetailsDTOOutput;
-import com.dh.roomly.dto.impl.UserSimpleDTOOutput;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.exception.DuplicateResourceException;
+import com.dh.roomly.exception.InvalidImageException;
+import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.IPropertyRepository;
-import com.dh.roomly.repository.UserRepository;
+import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.repository.specification.PropertySpecification;
 import com.dh.roomly.service.IFileService;
 import com.dh.roomly.service.IPropertyService;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class PropertyService implements IPropertyService {
     private final IFileService fileService;
     private final ICategoryRepository categoryRepository;
     private final ICityRepository cityRepository;
-    private final UserRepository userRepository;
+    private final IUserRepository IUserRepository;
 
     @Override
     @Transactional
@@ -59,6 +59,15 @@ public class PropertyService implements IPropertyService {
             UserSimpleDTOOutput ownerDTO = getUserSimpleDTOOutput(property);
             propertyDTO.setOwner(ownerDTO);
         }
+        // Asignar manualmente la categoría si no está asignada
+        if (property.getCategory() != null) {
+            CategoryDTOOutput categoryDTO = new CategoryDTOOutput();
+            categoryDTO.setId(property.getCategory().getId());
+            categoryDTO.setTitle(property.getCategory().getTitle());
+            categoryDTO.setDescription(property.getCategory().getDescription());
+            propertyDTO.setCategory(categoryDTO);
+        }
+
         return propertyDTO;
     }
 
@@ -115,12 +124,15 @@ public class PropertyService implements IPropertyService {
                 .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
 
         // Verificar la existencia del propietario (usuario) y obtener la entidad del usuario
-        UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
+        UserEntity owner = IUserRepository.findById(propertyDTO.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
+        // Verificar la existencia de la categoria y obtener la entidad
+        CategoryEntity category = categoryRepository.findById(propertyDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + propertyDTO.getCategoryId()));
 
         // Convertir el DTO a entidad y asignar la categoría
         PropertyEntity property = (PropertyEntity) MappingDTO.convertToEntity(propertyDTO, PropertyEntity.class);
-        assignCategoryToProperty(propertyDTO.getCategoryId(), property);
+        property.setCategory(category); //asociamoes la categoria
         property.setCity(city);  // Asociamos la ciudad
         property.setOwner(owner);  // Asociar el propietario
 
@@ -133,7 +145,7 @@ public class PropertyService implements IPropertyService {
 
         // Asociar la propiedad con el usuario y guardar el usuario
         owner.getProperties().add(savedProperty);
-        userRepository.save(owner);
+        IUserRepository.save(owner);
 
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(savedProperty, new PropertyDTOOutput());
         // Asignamos mainPhotoUrl como la primera imagen y el resto a photoUrls
@@ -141,8 +153,9 @@ public class PropertyService implements IPropertyService {
             dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(photos.get(0))); // Asignar primera imagen
             dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(photos.subList(1, photos.size()))); // Asignar el resto
         }
-        dtoOutput.setOwnerName(owner.getFirstName() + " " + owner.getLastName()); // Asignar el nombre del propietario al DTO de salida
-
+        dtoOutput.setOwnerId(owner.getId()); // Asignar ownerId al DTO de salida
+        dtoOutput.setCategoryId(category.getId());// Asignar el categoryId al DTO de salida
+        dtoOutput.setCountryId(city.getCountry().getId());// Asignar el countryId al DTO de salida
 
         return dtoOutput;
     }
@@ -157,11 +170,6 @@ public class PropertyService implements IPropertyService {
         return photo.getUrl();
     }
 
-    private void assignCategoryToProperty(Short categoryId, PropertyEntity property) {
-        CategoryEntity category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + categoryId));
-        property.setCategory(category);
-    }
 
     private List<FileEntity> uploadPropertyPhotos(List<MultipartFile> files) throws IOException {
         return fileService.uploadFiles(files);
@@ -182,7 +190,7 @@ public class PropertyService implements IPropertyService {
 
                     // Fuerza la carga de owner para evitar LazyInitializationException
                     if (property.getOwner() != null) {
-                        propertyDTO.setOwnerName(property.getOwner().getFirstName() + " " + property.getOwner().getFirstName());
+                        propertyDTO.setOwnerId(property.getOwner().getId()); // Asignar ownerId al DTO de salida
                     }
                     // Inicializa la lista de fotos para evitar LazyInitializationException
                     if (property.getPhotos() != null) {
@@ -194,6 +202,9 @@ public class PropertyService implements IPropertyService {
                         propertyDTO.setMainPhotoUrl(photoUrls.get(0)); // Asigna la primera foto como main image
                         propertyDTO.setPhotoUrls(photoUrls.subList(1, photoUrls.size())); // Asigna el resto a photoUrls
                     }
+                    if (property.getCity() != null) {
+                        propertyDTO.setCountryId(property.getCity().getCountry().getId());
+                    }
                     return propertyDTO;
                 })
                 .collect(Collectors.toList());
@@ -201,7 +212,12 @@ public class PropertyService implements IPropertyService {
 
     @Override
     @Transactional
-    public PropertyDTOOutput updateProperty(Long propertyId, PropertyDTOInput propertyDTO, List<MultipartFile> images, MultipartFile mainImage) throws IOException {
+    public PropertyDTOOutput updateProperty(Long propertyId,
+                                            PropertyDTOInput propertyDTO,
+                                            List<MultipartFile> images,
+                                            MultipartFile mainImage,
+                                            String mainImageUrl,
+                                            List<String> imageUrls) throws IOException {
         // Verificar la existencia de la propiedad
         PropertyEntity property = this.findPropertyEntityById(propertyId);
 
@@ -209,11 +225,13 @@ public class PropertyService implements IPropertyService {
         if (!property.getName().equals(propertyDTO.getName()) && iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
-        // Verificar la existencia de la ciudad y del propietario
+        // Verificar la existencia de la ciudad, del propietario y de la categoría
         CityEntity city = cityRepository.findById(propertyDTO.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
-        UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
+        UserEntity owner = IUserRepository.findById(propertyDTO.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
+        CategoryEntity category = categoryRepository.findById(propertyDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + propertyDTO.getCategoryId()));
 
         // Actualizar los campos de la propiedad
         property.setName(propertyDTO.getName());
@@ -224,19 +242,17 @@ public class PropertyService implements IPropertyService {
         property.setNumRooms(propertyDTO.getNumRooms());
         property.setNumBeds(propertyDTO.getNumBeds());
         property.setNumBathrooms(propertyDTO.getNumBathrooms());
-        property.setCity(city);  // Asociamos la ciudad
-        property.setOwner(owner);  // Asociar el propietario
-
-        // Asignar la categoría
-        assignCategoryToProperty(propertyDTO.getCategoryId(), property);
+        property.setCity(city);
+        property.setOwner(owner);
+        property.setCategory(category);
 
         // Manejar las fotos
-        handlePropertyImages(property, images, mainImage);
+        handlePropertyImages(property, images, mainImage, mainImageUrl, imageUrls);
 
         // Guardar los cambios en la propiedad y en el propietario
         PropertyEntity updatedProperty = iPropertyRepository.save(property);
         owner.getProperties().add(updatedProperty);
-        userRepository.save(owner);
+        IUserRepository.save(owner);
 
         // Convertir a DTO de salida y asignar URLs de fotos
         PropertyDTOOutput dtoOutput = (PropertyDTOOutput) MappingDTO.convertToDto(updatedProperty, new PropertyDTOOutput());
@@ -244,44 +260,55 @@ public class PropertyService implements IPropertyService {
             dtoOutput.setMainPhotoUrl(mapUrlToFileEntity(property.getPhotos().get(0))); // Asignar primera imagen
             dtoOutput.setPhotoUrls(mapUrlsToPropertyDTO(property.getPhotos().subList(1, property.getPhotos().size()))); // Asignar el resto
         }
-        dtoOutput.setOwnerName(owner.getFirstName() + " " + owner.getLastName()); // Asignar el nombre del propietario al DTO de salida
+        // Asignar los id al DTO de salida
+        dtoOutput.setOwnerId(owner.getId());
+        dtoOutput.setCategoryId(category.getId());
+        dtoOutput.setCountryId(city.getCountry().getId());
 
         return dtoOutput;
     }
 
-    private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images, MultipartFile mainImage) throws IOException {
-        // Obtener las fotos actuales
-        List<FileEntity> currentPhotos = property.getPhotos();
+    private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images,
+                                      MultipartFile mainImage, String mainImageUrl, List<String> imageUrls) throws IOException {
+        // Manejo de imagen principal (se envía en bytes o URL)
+        if (mainImage != null || mainImageUrl != null) {
+            FileEntity mainImageEntity = null;
 
-        if (mainImage != null) {
-            // Si se envía una mainImage, reemplazamos la primera imagen
-            FileEntity mainPhoto = uploadPropertyPhoto(mainImage); // Cargar la imagen principal
-            if (currentPhotos.isEmpty()) {
-                // Si no hay fotos, agregamos la nueva como la primera foto
-                currentPhotos.add(mainPhoto);
+            if (mainImage != null) {
+                mainImageEntity = fileService.uploadFile(mainImage);
             } else {
-                // Si ya hay fotos, reemplazamos la primera
-                currentPhotos.set(0, mainPhoto);
+                mainImageEntity = new FileEntity();
+                mainImageEntity.setUrl(mainImageUrl);
+            }
+
+            if (!property.getPhotos().isEmpty()) {
+                property.getPhotos().set(0, mainImageEntity);
+            } else {
+                property.getPhotos().add(0, mainImageEntity);
             }
         }
 
+        // Manejo de imágenes adicionales en bytes o URLs
+        int additionalImageCount = (images != null ? images.size() : 0) + (imageUrls != null ? imageUrls.size() : 0);
+        if (additionalImageCount < 4 || additionalImageCount > 5) {
+            throw new MissingImageException("Se deben proporcionar entre 4 y 5 imágenes adicionales.");
+        }
+
+        List<FileEntity> additionalImages = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
-            // Si se envían otras imágenes (no la mainImage), agregamos o reemplazamos las imágenes siguientes
-            List<FileEntity> newPhotos = uploadPropertyPhotos(images); // Cargar las nuevas imágenes
-            if (currentPhotos.isEmpty()) {
-                // Si no hay fotos, agregamos todas las nuevas imágenes
-                currentPhotos.addAll(newPhotos);
-            } else {
-                // Si ya hay fotos, reemplazamos las imágenes después de la primera
-                if (currentPhotos.size() > 1) {
-                    currentPhotos.subList(1, currentPhotos.size()).clear();
-                }
-                currentPhotos.addAll(newPhotos);
+            additionalImages.addAll(fileService.uploadFiles(images));
+        }
+
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            for (String imageUrl : imageUrls) {
+                FileEntity imageEntity = new FileEntity();
+                imageEntity.setUrl(imageUrl);
+                additionalImages.add(imageEntity);
             }
         }
 
-        // Si no se envía ninguna imagen (mainImage o images), las fotos permanecen igual
-        property.setPhotos(currentPhotos);
+        property.getPhotos().subList(1, property.getPhotos().size()).clear();
+        property.getPhotos().addAll(additionalImages);
     }
 
     private PropertyEntity findPropertyEntityById(Long id){

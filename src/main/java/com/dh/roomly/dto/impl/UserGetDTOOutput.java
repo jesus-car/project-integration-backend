@@ -25,5 +25,5 @@ public class UserGetDTOOutput implements IDTOEntity {
     private String city;
     private FileEntity profilePhoto;
     private LocalDateTime createdAt;
-    private Set<RoleEntity> roleEntities;
+    private RoleEntity role;
 }

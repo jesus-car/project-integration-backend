@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPatchImgOutput {
+public class UserPatchImgDTOOutput {
     String message;
     String imageUri;
 }

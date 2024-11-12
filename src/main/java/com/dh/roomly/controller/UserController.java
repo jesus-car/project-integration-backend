@@ -1,6 +1,6 @@
 package com.dh.roomly.controller;
 
-import com.dh.roomly.dto.impl.UserPatchImgOutput;
+import com.dh.roomly.dto.impl.UserPatchImgDTOOutput;
 import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class UserController {
 
 
     @PatchMapping(value = "/{id}/profile-picture" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UserPatchImgOutput updateUserProfilePicture(@PathVariable Long id, @RequestParam("image") MultipartFile image) throws IOException {
+    public UserPatchImgDTOOutput updateUserProfilePicture(@PathVariable Long id, @RequestParam("image") MultipartFile image) throws IOException {
         if (image == null || image.isEmpty()) {
             throw new MissingImageException("At least one non-empty image must be provided.");
         }

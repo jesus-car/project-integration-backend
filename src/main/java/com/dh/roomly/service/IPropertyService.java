@@ -27,5 +27,5 @@ public interface IPropertyService {
 
     List<PropertyDTOOutput> findAllForAdmin();
 
-    PropertyDTOOutput updateProperty(Long propertyId, @Valid PropertyDTOInput dto, List<MultipartFile> images, MultipartFile mainImage) throws IOException;
+    PropertyDTOOutput updateProperty(Long propertyId, @Valid PropertyDTOInput dto, List<MultipartFile> images, MultipartFile mainImage, String mainImageUrl, List<String> imageUrls) throws IOException;
 }
