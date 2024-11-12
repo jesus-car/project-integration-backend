@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,4 +29,5 @@ public class PropertyFilterDTO{
     private Short maxNumBathrooms;
     private Long ownerId;
     private Short categoryId;
+    private List<Short> categoryIds;
 }
