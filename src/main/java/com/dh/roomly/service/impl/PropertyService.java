@@ -339,6 +339,9 @@ public class PropertyService implements IPropertyService {
         if (Objects.nonNull(filter.getCountryId())) {
             spec = spec.and(PropertySpecification.countryEqualTo(filter.getCountryId()));
         }
+        if (Objects.nonNull(filter.getCategoryIds())) {
+            spec = spec.and(PropertySpecification.categoryIn(filter.getCategoryIds()));
+        }
         spec = addPriceFilters(filter, spec);
         spec = addNumBedsFilters(filter, spec);
         spec = addNumBathroomsFilters(filter, spec);

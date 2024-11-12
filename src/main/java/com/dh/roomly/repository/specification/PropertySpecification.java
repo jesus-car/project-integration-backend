@@ -4,6 +4,7 @@ import com.dh.roomly.entity.PropertyEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 public class PropertySpecification {
@@ -64,5 +65,10 @@ public class PropertySpecification {
     public static Specification<PropertyEntity> countryEqualTo(Short id) {
         return (root, query, builder) ->
                 Objects.isNull(id) ? null : builder.equal(root.get("city").get("country").get("id"), id);
+    }
+
+    public static Specification<PropertyEntity> categoryIn(List<Short> ids) {
+        return (root, query, builder) ->
+                (Objects.isNull(ids) || ids.isEmpty()) ? null : builder.in(root.get("categoryId")).value(ids);
     }
 }
