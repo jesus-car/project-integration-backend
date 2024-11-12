@@ -24,6 +24,9 @@ public class RoleEntity implements Serializable {
     @Column(name = "role_name")
     private RoleEnum name;
 
+    @Column(name = "description", unique = true)
+    private String description;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "roles_permissions",
@@ -32,5 +35,6 @@ public class RoleEntity implements Serializable {
             uniqueConstraints = @UniqueConstraint(columnNames = {"role_id","permission_id"})
     )
     private Set<PermissionEntity> permissions = new HashSet<>();
+
 
 }
