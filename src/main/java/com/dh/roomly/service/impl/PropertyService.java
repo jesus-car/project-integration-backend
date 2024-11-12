@@ -6,6 +6,8 @@ import com.dh.roomly.dto.impl.*;
 import com.dh.roomly.dto.filter.PropertyFilterDTO;
 import com.dh.roomly.entity.*;
 import com.dh.roomly.exception.DuplicateResourceException;
+import com.dh.roomly.exception.InvalidImageException;
+import com.dh.roomly.exception.MissingImageException;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
 import com.dh.roomly.repository.ICityRepository;
@@ -223,12 +225,11 @@ public class PropertyService implements IPropertyService {
         if (!property.getName().equals(propertyDTO.getName()) && iPropertyRepository.existsByName(propertyDTO.getName())) {
             throw new DuplicateResourceException("El nombre '" + propertyDTO.getName() + "' ya está en uso. Por favor, elige otro nombre.");
         }
-        // Verificar la existencia de la ciudad y del propietario
+        // Verificar la existencia de la ciudad, del propietario y de la categoría
         CityEntity city = cityRepository.findById(propertyDTO.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("La ciudad con ID '" + propertyDTO.getCityId() + "' no existe."));
         UserEntity owner = userRepository.findById(propertyDTO.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario con ID '" + propertyDTO.getOwnerId() + "' no existe."));
-        // Verificar la existencia de la categoria y obtener la entidad
         CategoryEntity category = categoryRepository.findById(propertyDTO.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + propertyDTO.getCategoryId()));
 
@@ -241,13 +242,11 @@ public class PropertyService implements IPropertyService {
         property.setNumRooms(propertyDTO.getNumRooms());
         property.setNumBeds(propertyDTO.getNumBeds());
         property.setNumBathrooms(propertyDTO.getNumBathrooms());
-        property.setCity(city);  // Asociamos la ciudad
-        property.setOwner(owner);  // Asociar el propietario
+        property.setCity(city);
+        property.setOwner(owner);
+        property.setCategory(category);
 
-        // Asignar la categoría
-        property.setCategory(category); //asociamoes la categoria
-
-        // Manejar las fotos: primero verifica si las imágenes son archivos (bytes) o URLs
+        // Manejar las fotos
         handlePropertyImages(property, images, mainImage, mainImageUrl, imageUrls);
 
         // Guardar los cambios en la propiedad y en el propietario
@@ -270,57 +269,47 @@ public class PropertyService implements IPropertyService {
     }
 
     private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images,
-                                      MultipartFile mainImage, String mainImageUrl, List<String> imagesUrls) throws IOException {
-        // Caso 1: Se envía la imagen principal (en bytes o URL)
+                                      MultipartFile mainImage, String mainImageUrl, List<String> imageUrls) throws IOException {
+        // Manejo de imagen principal (se envía en bytes o URL)
         if (mainImage != null || mainImageUrl != null) {
-            // Reemplazar la imagen principal
             FileEntity mainImageEntity = null;
 
             if (mainImage != null) {
-                // Si se recibe una imagen en bytes, subimos a S3 y creamos la entidad
                 mainImageEntity = fileService.uploadFile(mainImage);
-            } else if (mainImageUrl != null) {
-                // Si se recibe una URL, usamos la entidad existente
+            } else {
                 mainImageEntity = new FileEntity();
                 mainImageEntity.setUrl(mainImageUrl);
             }
 
-            // Si ya hay una imagen principal (en la posición 0), la reemplazamos
             if (!property.getPhotos().isEmpty()) {
-                property.getPhotos().set(0, mainImageEntity);  // Reemplazamos la imagen principal en la posición 0
+                property.getPhotos().set(0, mainImageEntity);
             } else {
-                // Si no hay ninguna foto, agregamos la imagen principal como la primera
                 property.getPhotos().add(0, mainImageEntity);
             }
         }
 
-        // Caso 2: Se envían imágenes adicionales (en bytes), reemplazando las existentes
-        if (images != null && !images.isEmpty()) {
-            // Subimos las nuevas imágenes adicionales en bytes
-            List<FileEntity> additionalImages = fileService.uploadFiles(images);
-
-            // Reemplazamos las imágenes existentes (excepto la principal)
-            property.getPhotos().subList(1, property.getPhotos().size()).clear(); // Eliminamos las fotos existentes (sin contar la principal)
-            property.getPhotos().addAll(additionalImages); // Agregamos las nuevas imágenes al final de la lista
+        // Manejo de imágenes adicionales en bytes o URLs
+        int additionalImageCount = (images != null ? images.size() : 0) + (imageUrls != null ? imageUrls.size() : 0);
+        if (additionalImageCount < 4 || additionalImageCount > 5) {
+            throw new MissingImageException("Se deben proporcionar entre 4 y 5 imágenes adicionales.");
         }
 
-        // Caso 3: Se envían imágenes adicionales como URLs, reemplazando las existentes
-        if (imagesUrls != null && !imagesUrls.isEmpty()) {
-            List<FileEntity> imageEntities = new ArrayList<>();
-            for (String imageUrl : imagesUrls) {
+        List<FileEntity> additionalImages = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            additionalImages.addAll(fileService.uploadFiles(images));
+        }
+
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            for (String imageUrl : imageUrls) {
                 FileEntity imageEntity = new FileEntity();
                 imageEntity.setUrl(imageUrl);
-                imageEntities.add(imageEntity);
+                additionalImages.add(imageEntity);
             }
-
-            // Reemplazamos las imágenes existentes (excepto la principal)
-            property.getPhotos().subList(1, property.getPhotos().size()).clear(); // Eliminamos las fotos existentes (sin contar la principal)
-            property.getPhotos().addAll(imageEntities); // Agregamos las nuevas imágenes al final de la lista
         }
 
-        // Caso 4: Si no se envían ni imagen principal ni imágenes adicionales, no hacemos cambios
+        property.getPhotos().subList(1, property.getPhotos().size()).clear();
+        property.getPhotos().addAll(additionalImages);
     }
-
 
     private PropertyEntity findPropertyEntityById(Long id){
         return this.iPropertyRepository.findById(String.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(
