@@ -64,4 +64,14 @@ public class LocalFileServiceImpl implements IFileService {
         return fileRepository.save(fileEntity);
     }
 
+    @Override
+    public void validatePath(String mainImageUrl) {
+
+    }
+
+    @Override
+    public String extractFileNameFromPath(String mainImageUrl) {
+        return "";
+    }
+
 }

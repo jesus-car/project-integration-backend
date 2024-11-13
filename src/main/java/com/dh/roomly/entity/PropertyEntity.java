@@ -71,7 +71,19 @@ public class PropertyEntity {
     )
     private List<FileEntity> photos = new ArrayList<>();
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MAIN_PHOTO_ID", referencedColumnName = "ID")
+    private FileEntity mainPhoto;
+
     @ManyToOne
     @JoinColumn(name = "CITY_ID", nullable = false)
     private CityEntity city;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "property_feature",
+            joinColumns = @JoinColumn(name = "property_id"),
+            inverseJoinColumns = @JoinColumn(name = "feature_id")
+    )
+    private List<FeatureEntity> features = new ArrayList<>();
 }

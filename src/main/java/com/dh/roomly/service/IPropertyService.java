@@ -23,7 +23,7 @@ public interface IPropertyService {
     Page<PropertyDTOOutput> findAll(PropertyFilterDTO filter, Pageable pageable);
 
     @Transactional
-    PropertyDTOOutput createPropertyWithPhotos(PropertyDTOInput propertyDTO, List<MultipartFile> files) throws IOException;
+    PropertyDTOOutput createPropertyWithPhotos(PropertyDTOInput propertyDTO, MultipartFile mainImage, List<MultipartFile> files) throws IOException;
 
     List<PropertyDTOOutput> findAllForAdmin();
 
