@@ -27,16 +27,16 @@ public class PropertyEntity {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "NAME", nullable = false, length = 100)
+    @Column(name = "NAME", nullable = false, length = 45)
     private String name;
 
-    @Column(name = "DESCRIPTION", length = 512)
+    @Column(name = "DESCRIPTION", length = 100, nullable = false)
     private String description;
 
     @Column(name = "PRICE_PER_NIGHT", nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerNight;
 
-    @Column(name = "EXACT_ADDRESS", length = 256)
+    @Column(name = "EXACT_ADDRESS", nullable = false)
     private String exactAddress;
 
     @Column(name = "MAX_CAPACITY", nullable = false)
@@ -72,6 +72,6 @@ public class PropertyEntity {
     private List<FileEntity> photos = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "city_id", nullable = false)
+    @JoinColumn(name = "CITY_ID", nullable = false)
     private CityEntity city;
 }

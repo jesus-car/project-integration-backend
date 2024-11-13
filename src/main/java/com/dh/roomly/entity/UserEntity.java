@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "user")
 public class UserEntity implements UserDetails {
 
     @Id
@@ -26,17 +26,18 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "USERNAME")
     private String username;
 
-    @Column(nullable = false, name = "NAMES")
+    @Column(nullable = false, name = "NAMES", length = 45)
     private String firstName;
 
-    @Column(nullable = false, name = "LAST_NAMES")
+    @Column(nullable = false, name = "LAST_NAMES", length = 45)
     private String lastName;
 
-    @Column(nullable = false, name = "IDENTIFICATION_NUMBER")
-    private Long identificationNumber;
+    @Column(nullable = false, name = "IDENTIFICATION_NUMBER", length = 25)
+    private String identificationNumber;
 
-    @Column( nullable = false, name = "IDENTIFICATION_TYPE")
-    private Short typeId;
+    @OneToOne
+    @JoinColumn( nullable = false, name = "IDENTIFICATION_TYPE_ID")
+    private IdTypeEntity typeId;
 
     @Column(unique = true, nullable = false, name = "EMAIL")
     private String email;
@@ -44,26 +45,25 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "PASSWORD_HASH")
     private String password;
 
-    @Column(nullable = false, name = "PHONE")
-    private Integer phoneNumber;
+    @Column(nullable = false, name = "PHONE", length = 45)
+    private String phoneNumber;
 
     @ManyToOne
-    @JoinColumn(name = "city_id", nullable = false)
+    @JoinColumn(name = "CITY_ID", nullable = false)
     private CityEntity city;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "PROFILE_PHOTO_ID")
     private FileEntity profilePhoto;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "ROLE_ID", nullable = false)
     private RoleEntity role;
 
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
-    @Column(nullable = false, name = "ENABLED")
+    @Column(nullable = false, name = "IS_ENABLED")
     private boolean isEnabled;
-    @Column(nullable = false, name = "LOCKED")
-    private boolean isLocked;
     @Column(nullable = false, name = "ACCOUNT_NON_EXPIRED")
     private boolean accountNonExpired;
     @Column(nullable = false, name = "CREDENTIALS_NON_EXPIRED")
