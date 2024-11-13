@@ -219,6 +219,9 @@ public class PropertyService implements IPropertyService {
                     if (property.getCity() != null) {
                         propertyDTO.setCountryId(property.getCity().getCountry().getId());
                     }
+                    if(property.getFeatures() != null){
+                        propertyDTO.setFeatureIds(property.getFeatures().stream().map(FeatureEntity::getId).collect(Collectors.toList()));
+                    }
                     return propertyDTO;
                 })
                 .collect(Collectors.toList());
@@ -318,7 +321,7 @@ public class PropertyService implements IPropertyService {
                     fileService.validatePath(imageUrl);
                     FileEntity imageEntity = new FileEntity();
                     imageEntity.setUrl(imageUrl);
-                    imageEntity.setName(fileService.extractFileNameFromPath(mainImageUrl));
+                    imageEntity.setName(fileService.extractFileNameFromPath(imageUrl));
                     additionalImages.add(imageEntity);
                 }
             }
