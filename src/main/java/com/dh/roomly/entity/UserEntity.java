@@ -36,7 +36,7 @@ public class UserEntity implements UserDetails {
     private String identificationNumber;
 
     @OneToOne
-    @JoinColumn( nullable = false, name = "IDENTIFICATION_TYPE_ID")
+    @JoinColumn(name = "IDENTIFICATION_TYPE_ID")
     private IdTypeEntity typeId;
 
     @Column(unique = true, nullable = false, name = "EMAIL")
