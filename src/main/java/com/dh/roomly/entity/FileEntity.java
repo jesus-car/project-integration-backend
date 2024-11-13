@@ -13,7 +13,10 @@ import lombok.NoArgsConstructor;
 public class FileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
+    @Column(name = "NAME", nullable = false, length = 100)
     private String name;
+    @Column(name = "URL", nullable = false, length = 2083)
     private String url;
 }

@@ -14,6 +14,7 @@ import java.util.*;
 public class CountryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Short id;
 
     @Column(name = "NAME", unique = true, nullable = false, length = 100)

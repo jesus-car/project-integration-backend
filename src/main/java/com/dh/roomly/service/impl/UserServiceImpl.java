@@ -93,7 +93,7 @@ public class UserServiceImpl {
     }
 
     private UserEntity setFieldsAndSaveUser(UserSaveDTOInput userSaveDTOInput, UserEntity userEntity) {
-        RoleEntity currentRole = IRoleRepository.findByName(RoleEnum.ROLE_CLIENT)
+        RoleEntity currentRole = IRoleRepository.findByName(RoleEnum.ROLE_USER)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
 
