@@ -14,6 +14,7 @@ public class TokenEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
 
     @Column(name = "token", nullable = false, unique = true, columnDefinition = "TEXT")

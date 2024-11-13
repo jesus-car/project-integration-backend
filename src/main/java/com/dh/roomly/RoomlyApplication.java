@@ -126,7 +126,7 @@ public class RoomlyApplication {
 
 			// Create roles
 			RoleEntity clientRoleEntity = RoleEntity.builder()
-					.name(RoleEnum.ROLE_CLIENT)
+					.name(RoleEnum.ROLE_USER)
 					.description("Cliente")
 					.permissions(Set.of(readPermission, updatePermission, deletePermission, writePermission))
 					.build();

@@ -18,6 +18,7 @@ import java.util.Set;
 public class RoleEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Short id;
 
     @Enumerated(EnumType.STRING)

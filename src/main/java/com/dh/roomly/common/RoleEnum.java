@@ -1,7 +1,7 @@
 package com.dh.roomly.common;
 
 public enum RoleEnum {
-    ROLE_CLIENT,
+    ROLE_USER,
     ROLE_OWNER,
     ROLE_ADMIN
 }

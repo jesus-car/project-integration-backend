@@ -14,12 +14,13 @@ import lombok.*;
 public class CityEntity implements IDTOEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Short id;
 
     @Column(name = "NAME", unique = true, nullable = false, length = 100)
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "country_id", nullable = false)
+    @JoinColumn(name = "COUNTRY_ID", nullable = false)
     private CountryEntity country;
 }

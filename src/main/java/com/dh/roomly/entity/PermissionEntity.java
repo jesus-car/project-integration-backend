@@ -13,6 +13,7 @@ import lombok.*;
 public class PermissionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
     // updatable = false means that the column cannot be updated in the database
     @Column(nullable = false, unique = true, updatable = false)
