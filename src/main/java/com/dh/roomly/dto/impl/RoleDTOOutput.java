@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RoleDTOOutput {
     private Short id;
+    private String description;
     private String name;
 }
