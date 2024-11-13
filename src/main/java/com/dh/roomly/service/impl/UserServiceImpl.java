@@ -5,12 +5,10 @@ import com.dh.roomly.common.RoleEnum;
 import com.dh.roomly.dto.impl.*;
 import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.RoleEntity;
-import com.dh.roomly.entity.TokenEntity;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.IRoleRepository;
-import com.dh.roomly.repository.ITokenRepository;
 import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.service.IEmailService;
 import com.dh.roomly.service.IFileService;
@@ -45,7 +43,6 @@ public class UserServiceImpl {
 
     private final IUserRepository IUserRepository;
     private final JwtService jwtService;
-    private final ITokenRepository ITokenRepository;
 
     @Transactional
     public UserSaveDTOOutput register(UserSaveDTOInput userSaveDTOInput) {
@@ -76,8 +73,6 @@ public class UserServiceImpl {
         emailService.sendEmail(user.getEmail(), "Welcome to Roomly", "Welcome to Roomly, " + user.getFirstName() + " " + user.getLastName() + "!");
 
         String jwt = jwtService.getToken(user);
-
-        saveUserToken(user, jwt);
 
         return UserSaveDTOOutput.builder()
                 .id(user.getId())
@@ -129,49 +124,12 @@ public class UserServiceImpl {
         UserEntity user = IUserRepository.findByEmail(userAuthDTOInput.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
-        revokeAllTokenByUser(user);
         String jwt = jwtService.getToken(user);
-
-        saveUserToken(user, jwt);
 
         return UserAuthDTOOutput.builder()
                 .token(jwt)
                 .message("Login successful")
                 .build();
-    }
-
-    public String userLogout(String token) {
-        if (token == null) {
-            throw new IllegalArgumentException("Token is null");
-        }
-
-        TokenEntity tokenEntity = ITokenRepository.findByToken(token).orElse(null);
-        if(tokenEntity != null) {
-            tokenEntity.setLoggedOut(true);
-            ITokenRepository.save(tokenEntity);
-        }
-
-        return "Logout successful";
-    }
-
-    private void revokeAllTokenByUser(UserEntity user) {
-        List<TokenEntity> validTokensListByUser = ITokenRepository.findAllTokenByUser(user.getId());
-
-        if (!validTokensListByUser.isEmpty()) {
-            validTokensListByUser.forEach(tokenEntity -> tokenEntity.setLoggedOut(true));
-        }
-
-        ITokenRepository.saveAll(validTokensListByUser);
-    }
-
-    private void saveUserToken(UserEntity user, String jwt) {
-        TokenEntity tokenEntity = TokenEntity.builder()
-                .token(jwt)
-                .user(user)
-                .loggedOut(false)
-                .build();
-
-        ITokenRepository.save(tokenEntity);
     }
 
 

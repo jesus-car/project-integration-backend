@@ -58,10 +58,6 @@ public class UserEntity implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
 
-    @OneToMany(mappedBy = "user")
-    @Column(nullable = false, name = "TOKENS")
-    private List<TokenEntity> tokens;
-
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
     @Column(nullable = false, name = "ENABLED")
