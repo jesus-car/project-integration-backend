@@ -13,8 +13,6 @@ jobs:
             AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             AWS_REGION: ${{ secrets.AWS_REGION }}
             AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-            EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-            EC2_URL: ${{ secrets.EC2_URL }}
             EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
             EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
             SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
@@ -33,8 +31,6 @@ jobs:
                     AWS__SECRET_KEY=$AWS_SECRET_KEY
                     AWS_REGION=$AWS_REGION
                     AWS_S3_BUCKET=$AWS_S3_BUCKET
-                    EC2_USERNAME=$EC2_USERNAME
-                    EC2_URL=$EC2_URL
                     EMAIL_USERNAME=$EMAIL_USERNAME
                     EMAIL_PASSWORD=$EMAIL_PASSWORD
                     SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL
@@ -53,33 +49,29 @@ jobs:
                     username: ${{ secrets.DOCKERHUB_USERNAME }}
                     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    deploy:
+        runs-on: ubuntu-latest
+        env:
+            EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+            EC2_URL: ${{ secrets.EC2_URL }}
+        steps:
             -   name: SSH key to EC2
                 run: |
                     echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > primerkey.pem
                     chmod 400 "primerkey.pem"
-            -   name: Create .env file for Docker
+            -   name: Deploy to EC2
                 run: |
-                    echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
-                    echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
-                    echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
-                    echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
-                    echo "EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}" >> .env
-                    echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> .env
-                    echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
-                    echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
-                    echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
-            - name: Copy .env file to EC2
-              run: |
-                  scp -i primerkey.pem -o StrictHostKeyChecking=no .env $EC2_USERNAME@$EC2_URL:/home/$EC2_USERNAME/.env
-
-            - name: Deploy to EC2
-              run: |
-                  ssh -i "primerkey.pem" -o StrictHostKeyChecking=no -t $EC2_USERNAME@$EC2_URL << 'EOF'
-                    sudo docker stop backend-integration || true
-                    sudo docker rm backend-integration || true
-                    sudo docker image prune -a -f
-                    sudo docker pull jesuscar/ci-demo:latest
-                    sudo docker run -d -p 8080:9000 --name backend-integration \
-                      --env-file .env \
-                      jesuscar/ci-demo
-                  EOF
+                    ssh -i "primerkey.pem" -o StrictHostKeyChecking=no -t $EC2_USERNAME@$EC2_URL << 'EOF'
+                      sudo docker stop backend-integration || true
+                      sudo docker rm backend-integration || true
+                      sudo docker image prune -a -f
+                      sudo docker pull jesuscar/ci-demo:latest
+                      sudo docker run -d -p 8080:9000 --name backend-integration \
+                        -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+                        -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
+                        -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+                        -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+                        -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+                        -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+                        jesuscar/ci-demo
+                    EOF
