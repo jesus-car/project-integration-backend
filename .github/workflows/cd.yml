@@ -15,9 +15,9 @@ jobs:
             AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
             EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
             EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-            SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
-            SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-            SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+            DATASOURCE_URL: ${{ secrets.DATASOURCE_URL }}
+            DATASOURCE_USERNAME: ${{ secrets.DATASOURCE_USERNAME }}
+            DATASOURCE_PASSWORD: ${{ secrets.DATASOURCE_PASSWORD }}
         steps:
             -   uses: actions/checkout@v4
             -   name: Set up JDK 17
@@ -30,9 +30,9 @@ jobs:
                     AWS_ACCESS_KEY=$AWS_ACCESS_KEY
                     AWS__SECRET_KEY=$AWS_SECRET_KEY
                     EMAIL_PASSWORD=$EMAIL_PASSWORD
-                    DATASOURCE_URL=$SPRING_DATASOURCE_URL
-                    DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME
-                    DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD
+                    DATASOURCE_URL=$DATASOURCE_URL
+                    DATASOURCE_USERNAME=$DATASOURCE_USERNAME
+                    DATASOURCE_PASSWORD=$DATASOURCE_PASSWORD
             -   name: Build with Mave
                 run: mvn -q clean package --file pom.xml -DskipTests
 
@@ -68,8 +68,8 @@ jobs:
                         -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
                         -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
                         -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
-                        -e DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-                        -e DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-                        -e DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+                        -e DATASOURCE_URL=${{ secrets.DATASOURCE_URL }} \
+                        -e DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }} \
+                        -e DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }} \
                         jesuscar/ci-demo
                     EOF
