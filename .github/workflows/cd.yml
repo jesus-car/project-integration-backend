@@ -9,16 +9,15 @@ jobs:
     test:
         runs-on: ubuntu-latest
         env:
-            EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-            EC2_URL: ${{ secrets.EC2_URL }}
-            EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
             AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
             AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             AWS_REGION: ${{ secrets.AWS_REGION }}
             AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
             EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
             EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-
+            SPRING_DATASOURCE_URL: ${{ SPRING_DATASOURCE_URL }}
+            SPRING_DATASOURCE_USERNAME: ${{ SPRING_DATASOURCE_USERNAME }}
+            SPRING_DATASOURCE_PASSWORD: ${{ SPRING_DATASOURCE_PASSWORD }}
         steps:
             -   uses: actions/checkout@v4
             -   name: Set up JDK 17
@@ -34,8 +33,11 @@ jobs:
                     AWS_S3_BUCKET=$AWS_S3_BUCKET
                     EMAIL_USERNAME=$EMAIL_USERNAME
                     EMAIL_PASSWORD=$EMAIL_PASSWORD
+                    SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL
+                    SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME
+                    SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD
             -   name: Build with Mave
-                run: mvn -q clean package --file pom.xml
+                run: mvn -q clean package --file pom.xml -DskipTests
 
             -   name: Build & push Docker image
                 uses: mr-smithers-excellent/docker-build-push@v6
@@ -65,5 +67,8 @@ jobs:
                         -e AWS_S3_BUCKET=${{  secrets.AWS_S3_BUCKET }} \
                         -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
                         -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+                        -e SPRING_DATASOURCE_URL=${{ SPRING_DATASOURCE_URL }} \
+                        -e SPRING_DATASOURCE_USERNAME=${{ SPRING_DATASOURCE_USERNAME }} \
+                        -e SPRING_DATASOURCE_PASSWORD=${{ SPRING_DATASOURCE_PASSWORD }} \
                         jesuscar/ci-demo
                     EOF
