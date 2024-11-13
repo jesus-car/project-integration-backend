@@ -26,12 +26,6 @@ public class AuthController {
         return userService.login(userAuthDTOInput);
     }
 
-    @PostMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        String token = JwtTokenConfig.extractTokenFromHeader(request);
-        return userService.userLogout(token);
-    }
-
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserSaveDTOOutput register(@Valid @RequestBody UserSaveDTOInput userSaveDTOInput) {
