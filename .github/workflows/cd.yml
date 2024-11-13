@@ -68,6 +68,9 @@ jobs:
                     echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
                     echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
                     echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
+            - name: Copy .env file to EC2
+              run: |
+                  scp -i primerkey.pem -o StrictHostKeyChecking=no .env $EC2_USERNAME@$EC2_URL:/home/$EC2_USERNAME/.env
 
             - name: Deploy to EC2
               run: |
