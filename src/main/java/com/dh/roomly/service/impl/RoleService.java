@@ -19,7 +19,8 @@ public class RoleService implements IRoleService {
         return roleRepository.findAll().stream()
                 .map(roleEntity -> RoleDTOOutput.builder()
                         .id(roleEntity.getId())
-                        .name(roleEntity.getDescription())
+                        .name(roleEntity.getName().toString())
+                        .description(roleEntity.getDescription())
                         .build())
                 .toList();
     }
