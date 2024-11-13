@@ -71,5 +71,6 @@ jobs:
                         -e AWS_S3_BUCKET=${{  secrets.AWS_S3_BUCKET }} \
                         -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
                         -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+                        -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
                         jesuscar/ci-demo
                     EOF
