@@ -19,9 +19,9 @@ public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Short id;
-    @Column(name = "TITLE", unique=true, nullable=false, length=100)
+    @Column(name = "TITLE", nullable=false, length=45)
     private String title;
-    @Column(name = "DESCRIPTION", length=400)
+    @Column(name = "DESCRIPTION", length=100, nullable = false)
     private String description;
     @OneToOne
     @JoinColumn(name = "FILE_ID", referencedColumnName = "id")

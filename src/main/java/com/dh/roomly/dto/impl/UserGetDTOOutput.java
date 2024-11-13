@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Builder
@@ -20,8 +19,8 @@ public class UserGetDTOOutput implements IDTOEntity {
     private String firstName;
     private String lastName;
     private String email;
-    private Long identificationNumber;
-    private Integer phoneNumber;
+    private String identificationNumber;
+    private String phoneNumber;
     private String city;
     private FileEntity profilePhoto;
     private LocalDateTime createdAt;

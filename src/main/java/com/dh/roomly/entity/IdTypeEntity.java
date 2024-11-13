@@ -9,16 +9,12 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "grants")
-public class PermissionEntity {
+@Table(name = "identification_type")
+public class IdTypeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     @Column(name = "ID")
     private Short id;
-    // updatable = false means that the column cannot be updated in the database
     @Column(name = "NAME", nullable = false, unique = true, length = 100)
     private String name;
-
-    @Column(name = "DESCRIPTION", length = 45, nullable = false)
-    private String description;
 }

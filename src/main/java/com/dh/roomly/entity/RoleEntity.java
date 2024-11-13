@@ -14,7 +14,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "roles")
+@Table(name = "role")
 public class RoleEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,20 +22,20 @@ public class RoleEntity implements Serializable {
     private Short id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role_name")
+    @Column(name = "NAME", length = 100, nullable = false)
     private RoleEnum name;
 
-    @Column(name = "description", unique = true)
+    @Column(name = "DESCRIPTION", length = 45, nullable = false)
     private String description;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
-            name = "roles_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"role_id","permission_id"})
+            name = "role_grant",
+            joinColumns = @JoinColumn(name = "ROLE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "GRANT_ID"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"ROLE_ID","GRANT_ID"})
     )
-    private Set<PermissionEntity> permissions = new HashSet<>();
+    private Set<PermissionEntity> grant = new HashSet<>();
 
 
 }

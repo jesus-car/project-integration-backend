@@ -16,15 +16,20 @@ import lombok.NoArgsConstructor;
 public class UserSaveDTOInput implements IDTOEntity {
 
     @NotBlank(message = Constants.NOT_BLANK)
-    @Size(max = 256, message = "Must be a maximum of 256 characters")
+    @Size(max = 45, message = "Must be a maximum of 256 characters")
     private String firstName;
 
     @NotBlank(message = Constants.NOT_BLANK)
-    @Size(max = 256, message = "Must be a maximum of 256 characters")
+    @Size(max = 45, message = "Must be a maximum of 256 characters")
     private String lastName;
 
     @NotNull(message = Constants.NOT_BLANK)
-    private Long identificationNumber;
+    @Size(max = 25, message = "Must be a maximum of 45 characters")
+    @Pattern(
+            regexp = "^[0-9]*$",
+            message = "Solo se permiten números"
+    )
+    private String identificationNumber;
 
     @NotNull(message = Constants.NOT_BLANK)
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)
@@ -32,8 +37,12 @@ public class UserSaveDTOInput implements IDTOEntity {
     private Short typeId;
 
     @NotNull(message = Constants.NOT_BLANK)
-    @Min(value = 10000000, message = "Ingrese un número de teléfono válido")
-    private Integer phoneNumber;
+    @Size(max = 45, message = "Must be a maximum of 45 characters")
+    @Pattern(
+            regexp = "^[0-9]*$",
+            message = "Solo se permiten números"
+    )
+    private String phoneNumber;
 
     @NotNull(message = Constants.NOT_BLANK)
     @Min(value = 0, message = Constants.NOT_LESS_THAN_ZERO)

@@ -8,6 +8,7 @@ import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICityRepository;
+import com.dh.roomly.repository.IIdTypeRepository;
 import com.dh.roomly.repository.IRoleRepository;
 import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.service.IEmailService;
@@ -43,6 +44,7 @@ public class UserServiceImpl {
 
     private final IUserRepository IUserRepository;
     private final JwtService jwtService;
+    private final IIdTypeRepository idTypeRepository;
 
     @Transactional
     public UserSaveDTOOutput register(UserSaveDTOInput userSaveDTOInput) {
@@ -53,14 +55,13 @@ public class UserServiceImpl {
                 .firstName(userSaveDTOInput.getFirstName())
                 .lastName(userSaveDTOInput.getLastName())
                 .identificationNumber(userSaveDTOInput.getIdentificationNumber())
-                .typeId(userSaveDTOInput.getTypeId())
                 .phoneNumber(userSaveDTOInput.getPhoneNumber())
                 .isEnabled(true)
-                .isLocked(false)
                 .accountNonExpired(true)
                 .credentialsNonExpired(true)
                 .accountNonLocked(true)
                 .build();
+
 
         CompromisedPasswordDecision decision = compromisedPasswordChecker.check(userSaveDTOInput.getPassword());
 
@@ -79,6 +80,7 @@ public class UserServiceImpl {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .identificationType(user.getTypeId().getName())
                 .identificationNumber(user.getIdentificationNumber())
                 .phoneNumber(user.getPhoneNumber())
                 .createdAt(user.getCreatedAt())
@@ -111,6 +113,10 @@ public class UserServiceImpl {
         // Set city
         userEntity.setCity(cityRepository.findById(userSaveDTOInput.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("City not found")));
+
+        // Set Identification Type
+        userEntity.setTypeId(idTypeRepository.findById(userSaveDTOInput.getTypeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Identification Type not found")));
 
         return IUserRepository.save(userEntity);
     }
