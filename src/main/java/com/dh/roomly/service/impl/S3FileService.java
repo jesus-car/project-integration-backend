@@ -73,4 +73,19 @@ public class S3FileService implements IFileService {
         fileEntity.setName(fileName);
         return fileRepository.save(fileEntity);
     }
+
+    public void validatePath(String url) {
+        String s3Domain = ".s3.amazonaws.com/";
+        String expectedBucketUrl = "https://" + bucketName + s3Domain;
+
+        if (!url.startsWith(expectedBucketUrl)) {
+            throw new IllegalArgumentException("La URL no pertenece al bucket de S3 especificado");
+        }
+    }
+
+    public String extractFileNameFromPath(String url) {
+        validatePath(url);
+        String[] parts = url.split("/");
+        return parts[parts.length - 1];
+    }
 }

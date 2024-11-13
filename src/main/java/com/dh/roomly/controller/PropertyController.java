@@ -60,12 +60,7 @@ public class PropertyController {
             throw new MissingImageException("Cada imagen adicional debe ser no vacía.");
         }
 
-        // Insertamos mainImage al inicio de la lista de imágenes
-        List<MultipartFile> allImages = new ArrayList<>();
-        allImages.add(mainImage);
-        allImages.addAll(images);
-
-        PropertyDTOOutput createdProperty = iPropertyService.createPropertyWithPhotos(dto, allImages);
+        PropertyDTOOutput createdProperty = iPropertyService.createPropertyWithPhotos(dto, mainImage, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProperty);
     }
 
@@ -90,7 +85,7 @@ public class PropertyController {
         int totalImages = (images != null ? images.size() : 0) + (imageUrls != null ? imageUrls.size() : 0);
         // Validación para la lista de imágenes (debe contener entre 4 y 5 imágenes si se proporcionan)
         if (totalImages > 0 && (totalImages < 4 || totalImages > 5)) {
-            throw new MissingImageException("La lista de imágenes adicionales debe contener entre 4 y 5 imágenes en total.");
+            throw new MissingImageException("La lista de imágenes adicionales debe contener entre 4 y 5 imágenes en total si se proporcionan.");
         }
         if (images != null && images.stream().anyMatch(MultipartFile::isEmpty)) {
             throw new MissingImageException("Cada imagen adicional debe ser no vacía.");
