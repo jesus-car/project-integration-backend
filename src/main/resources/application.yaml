@@ -44,7 +44,7 @@ upload:
 
 cors:
   allowed:
-    origins: http://localhost:5173,http://18.205.14.166:8080
+    origins: http://localhost:5173,http://18.205.14.20:8080/
 
 cloud:
   aws:
