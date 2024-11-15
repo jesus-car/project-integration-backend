@@ -3,6 +3,7 @@ package com.dh.roomly.controller;
 import com.dh.roomly.dto.impl.UserGetDTOOutput;
 import com.dh.roomly.dto.impl.UserUpdateRoleInput;
 import com.dh.roomly.service.impl.UserServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ public class AdminController {
     private final UserServiceImpl userService;
 
     @PatchMapping("/users/{id}/role")
+    @Operation(summary = "Update user role")
     public String updateUserRole(@PathVariable Long id, @RequestBody UserUpdateRoleInput roles) {
         return userService.updateUserRole(id, roles);
     }
