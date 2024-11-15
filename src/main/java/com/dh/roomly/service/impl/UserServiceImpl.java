@@ -213,10 +213,18 @@ public class UserServiceImpl {
         UserEntity user = IUserRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
-        if (jwtService.isRefreshTokenValid(refreshToken, user)) {
-            throw new IllegalArgumentException("Invalid token");
+        if (!jwtService.isRefreshTokenValid(refreshToken, user)) {
+            throw new IllegalArgumentException("Invalid refresh token");
         }
+        String accessToken = jwtService.generateAccessToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
 
-        return null;
+        response.setHeader(HttpHeaders.AUTHORIZATION, JwtTokenConfig.PREFIX_TOKEN + newRefreshToken);
+
+        return UserAuthDTOOutput.builder()
+                .token(accessToken)
+                .message("Token refreshed successfully")
+                .refreshToken(newRefreshToken)
+                .build();
     }
 }

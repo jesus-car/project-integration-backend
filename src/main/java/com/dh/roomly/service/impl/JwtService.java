@@ -51,13 +51,20 @@ public class JwtService {
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaim(token, Claims::getSubject);
+        Claims claims = getAllClaims(token);
+        return claims.get("email", String.class);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
 
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) );
+    }
+
+    public boolean isRefreshTokenValid(String refreshToken, UserEntity user) {
+        final String username = getUsernameFromToken(refreshToken);
+
+        return (username.equals(user.getUsername()) && !isTokenExpired(refreshToken) );
     }
 
     private Claims getAllClaims(String token) {
@@ -82,7 +89,4 @@ public class JwtService {
         return getExpiration(token).before(new Date());
     }
 
-    public boolean isRefreshTokenValid(String refreshToken, UserEntity user) {
-        return (user.getId().toString().equals(getClaim(refreshToken, Claims::getSubject)) && !isTokenExpired(refreshToken));
-    }
 }
