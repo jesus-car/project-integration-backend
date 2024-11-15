@@ -82,6 +82,7 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         this.findById(id);
         this.iPropertyRepository.deleteById(String.valueOf(id));
