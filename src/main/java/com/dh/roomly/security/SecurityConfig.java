@@ -1,5 +1,6 @@
 package com.dh.roomly.security;
 
+import com.dh.roomly.common.RoleEnum;
 import com.dh.roomly.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +27,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/users/**/role").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/v1/admin/users/{id}/role").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/users/all").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)

@@ -1,6 +1,7 @@
 package com.dh.roomly.service.impl;
 
 import com.dh.roomly.common.Constants;
+import com.dh.roomly.common.JwtTokenConfig;
 import com.dh.roomly.common.RoleEnum;
 import com.dh.roomly.dto.impl.*;
 import com.dh.roomly.entity.FileEntity;
@@ -13,9 +14,12 @@ import com.dh.roomly.repository.IRoleRepository;
 import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.service.IEmailService;
 import com.dh.roomly.service.IFileService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
@@ -27,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +76,8 @@ public class UserServiceImpl {
 
         emailService.sendEmail(user.getEmail(), "Welcome to Roomly", "Welcome to Roomly, " + user.getFirstName() + " " + user.getLastName() + "!");
 
-        String jwt = jwtService.getToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
         return UserSaveDTOOutput.builder()
                 .id(user.getId())
@@ -85,7 +89,8 @@ public class UserServiceImpl {
                 .phoneNumber(user.getPhoneNumber())
                 .createdAt(user.getCreatedAt())
                 .role(user.getRole())
-                .token(jwt)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -130,11 +135,13 @@ public class UserServiceImpl {
         UserEntity user = IUserRepository.findByEmail(userAuthDTOInput.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
-        String jwt = jwtService.getToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
         return UserAuthDTOOutput.builder()
-                .token(jwt)
+                .token(accessToken)
                 .message("Login successful")
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -187,5 +194,29 @@ public class UserServiceImpl {
         user.setRole(newRole);
         IUserRepository.save(user);
         return "User role updated successfully";
+    }
+
+    public UserAuthDTOOutput refreshToken(
+                HttpServletRequest request,
+                HttpServletResponse response) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith(JwtTokenConfig.PREFIX_TOKEN)) {
+            throw new IllegalArgumentException("Missing or invalid Authorization header");
+        }
+
+        String refreshToken = authHeader.substring(7);
+
+        String username = jwtService.getUsernameFromToken(refreshToken);
+
+        UserEntity user = IUserRepository.findByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
+
+        if (jwtService.isRefreshTokenValid(refreshToken, user)) {
+            throw new IllegalArgumentException("Invalid token");
+        }
+
+        return null;
     }
 }

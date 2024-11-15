@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class UserAuthDTOOutput {
     String token;
     String message;
+    String refreshToken;
 }

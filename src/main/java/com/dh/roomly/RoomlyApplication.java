@@ -15,6 +15,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,14 +28,15 @@ public class RoomlyApplication {
 	private final ICityRepository cityRepository;
 	private final ICountryRepository countryRepository;
 	private final ICategoryRepository categoryRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	public static void main(String[] args) {
 		SpringApplication.run(RoomlyApplication.class, args);
-	}
+//	}
 //	@Bean
 //	CommandLineRunner commandLineRunner() {
 //		return args -> {
-//
+
 //			// Crear países latinoamericanos
 //			CountryEntity argentina = new CountryEntity();
 //			argentina.setName("Argentina");
@@ -198,5 +200,5 @@ public class RoomlyApplication {
 //
 //			IUserRepository.saveAll(Set.of(client, seller, admin));
 //		};
-//	}
+	}
 }

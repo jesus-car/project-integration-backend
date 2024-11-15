@@ -20,24 +20,32 @@ public class JwtService {
 
 
     protected static final Date DATE_EXPIRATION = new Date(System.currentTimeMillis() + 3600000);
+    protected static final Date DATE_EXPIRATION_REFRESH = new Date(System.currentTimeMillis() + 3600000*24);
 
-    public String getToken(UserEntity user) {
-        // Aca se agrega propiedades extras al token si es necesario
+
+    public String generateAccessToken(UserEntity user) {
+        return generateToken(getExtraClaims(user), user, DATE_EXPIRATION);
+    }
+
+    public String generateRefreshToken(UserEntity user) {
+        return generateToken(getExtraClaims(user), user, DATE_EXPIRATION_REFRESH);
+    }
+
+    private Map<String, Object> getExtraClaims(UserEntity user) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("firstName", user.getFirstName());
         extraClaims.put("lastName", user.getLastName());
         extraClaims.put("role", user.getRole().getName());
         extraClaims.put("email", user.getEmail());
-
-        return getToken(extraClaims, user);
+        return extraClaims;
     }
 
-    private String getToken(Map<String, Object> extraClaims, UserEntity user) {
+    private String generateToken(Map<String, Object> extraClaims, UserEntity user, Date expiration) {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(user.getId().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(DATE_EXPIRATION)
+                .expiration(expiration)
                 .signWith(SECRET_KEY)
                 .compact();
     }
@@ -72,5 +80,9 @@ public class JwtService {
 
     private boolean isTokenExpired(String token) {
         return getExpiration(token).before(new Date());
+    }
+
+    public boolean isRefreshTokenValid(String refreshToken, UserEntity user) {
+        return (user.getId().toString().equals(getClaim(refreshToken, Claims::getSubject)) && !isTokenExpired(refreshToken));
     }
 }
