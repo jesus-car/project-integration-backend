@@ -88,6 +88,7 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
+    @Transactional
     public Page<PropertyDTOOutput> findAll(PropertyFilterDTO filter, Pageable pageable) {
         Specification<PropertyEntity> specification = this.addFilters(filter);
         Page<PropertyEntity> property = iPropertyRepository.findAll(specification, pageable);
