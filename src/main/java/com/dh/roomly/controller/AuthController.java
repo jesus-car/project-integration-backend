@@ -6,6 +6,7 @@ import com.dh.roomly.dto.impl.UserAuthDTOOutput;
 import com.dh.roomly.dto.impl.UserSaveDTOInput;
 import com.dh.roomly.dto.impl.UserSaveDTOOutput;
 import com.dh.roomly.service.impl.UserServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
+    @Operation(summary = " NO TOCAR NO TOCAR NO TOCAR NO TOCAR")
     public UserAuthDTOOutput refreshToken(HttpServletRequest request, HttpServletResponse response) {
         return userService.refreshToken(request, response);
     }
