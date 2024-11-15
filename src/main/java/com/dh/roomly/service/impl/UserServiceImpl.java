@@ -32,11 +32,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import static com.dh.roomly.common.Constants.ROLE_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl {
 
-    private final IRoleRepository IRoleRepository;
+    private final IRoleRepository roleRepository;
     private final ICityRepository cityRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -45,7 +47,7 @@ public class UserServiceImpl {
     private final CompromisedPasswordChecker compromisedPasswordChecker;
 
 
-    private final IUserRepository IUserRepository;
+    private final IUserRepository userRepository;
     private final JwtService jwtService;
     private final IIdTypeRepository idTypeRepository;
 
@@ -95,18 +97,18 @@ public class UserServiceImpl {
     }
 
     private UserEntity setFieldsAndSaveUser(UserSaveDTOInput userSaveDTOInput, UserEntity userEntity) {
-        RoleEntity currentRole = IRoleRepository.findByName(RoleEnum.ROLE_USER)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        RoleEntity currentRole = roleRepository.findByName(RoleEnum.ROLE_USER)
+                .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND));
 
 
         if (userEntity.isSeller())
-            currentRole = IRoleRepository.findByName(RoleEnum.ROLE_OWNER)
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+            currentRole = roleRepository.findByName(RoleEnum.ROLE_OWNER)
+                    .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND));
 
 
         if (userEntity.isAdmin())
-            currentRole = IRoleRepository.findByName(RoleEnum.ROLE_ADMIN)
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+            currentRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
+                    .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND));
 
 
         userEntity.setRole(currentRole);
@@ -123,7 +125,7 @@ public class UserServiceImpl {
         userEntity.setTypeId(idTypeRepository.findById(userSaveDTOInput.getTypeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Identification Type not found")));
 
-        return IUserRepository.save(userEntity);
+        return userRepository.save(userEntity);
     }
 
 
@@ -132,7 +134,7 @@ public class UserServiceImpl {
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthDTOInput.getEmail(), userAuthDTOInput.getPassword()));
 
-        UserEntity user = IUserRepository.findByEmail(userAuthDTOInput.getEmail())
+        UserEntity user = userRepository.findByEmail(userAuthDTOInput.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
         String accessToken = jwtService.generateAccessToken(user);
@@ -148,13 +150,13 @@ public class UserServiceImpl {
 
     @Transactional
     public UserPatchImgDTOOutput updateUserProfileImage(Long id, MultipartFile image) throws IOException {
-        UserEntity user = IUserRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
         FileEntity fileEntity = uploadUserProfileImage(image);
 
         user.setProfilePhoto(fileEntity);
-        IUserRepository.save(user);
+        userRepository.save(user);
 
         return UserPatchImgDTOOutput.builder()
                 .message("Profile image updated successfully")
@@ -168,7 +170,7 @@ public class UserServiceImpl {
 
     @Transactional(readOnly = true)
     public Page<UserGetDTOOutput> findAll(Pageable pageable) {
-        return IUserRepository.findAll(pageable)
+        return userRepository.findAll(pageable)
                 .map(user -> UserGetDTOOutput.builder()
                         .id(user.getId())
                         .firstName(user.getFirstName())
@@ -185,14 +187,14 @@ public class UserServiceImpl {
 
     @Transactional
     public String updateUserRole(Long id, UserUpdateRoleInput roles) {
-        UserEntity user = IUserRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
-        RoleEntity newRole = IRoleRepository.findById(roles.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        RoleEntity newRole = roleRepository.findById(roles.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND));
 
         user.setRole(newRole);
-        IUserRepository.save(user);
+        userRepository.save(user);
         return "User role updated successfully";
     }
 
@@ -210,7 +212,7 @@ public class UserServiceImpl {
 
         String username = jwtService.getUsernameFromToken(refreshToken);
 
-        UserEntity user = IUserRepository.findByEmail(username)
+        UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
 
         if (!jwtService.isRefreshTokenValid(refreshToken, user)) {

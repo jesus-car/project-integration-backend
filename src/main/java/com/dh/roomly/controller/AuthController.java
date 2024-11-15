@@ -1,6 +1,5 @@
 package com.dh.roomly.controller;
 
-import com.dh.roomly.common.JwtTokenConfig;
 import com.dh.roomly.dto.impl.UserAuthDTOInput;
 import com.dh.roomly.dto.impl.UserAuthDTOOutput;
 import com.dh.roomly.dto.impl.UserSaveDTOInput;
@@ -12,8 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.password.CompromisedPasswordChecker;
-import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

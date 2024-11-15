@@ -19,7 +19,6 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
-
     @PatchMapping(value = "/{id}/profile-picture" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserPatchImgDTOOutput updateUserProfilePicture(@PathVariable Long id, @RequestParam("image") MultipartFile image) throws IOException {
         if (image == null || image.isEmpty()) {
@@ -27,13 +26,4 @@ public class UserController {
         }
         return userService.updateUserProfileImage(id, image);
     }
-
-
-
-
-//    @GetMapping("/{username}")
-//    public UserSaveOutput getUser(@PathVariable String username) {
-//        log.info("Getting user with username: {}", username);
-//        return userService.getUser(username);
-//    }
 }
