@@ -7,4 +7,5 @@ public final class Constants {
     public static final String NOT_GREATER_THAN_MAX_VALUE_SHORT = "Should not be greater than 255";
     public static final String NOT_GREATER_THAN_MAX_VALUE_LONG = "Should not be greater than 9223372036854775807";
     public static final String USER_NOT_FOUND = "User not found.";
+    public static final String ROLE_NOT_FOUND = "Role not found.";
 }

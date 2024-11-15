@@ -26,7 +26,7 @@ public class UserSaveDTOInput implements IDTOEntity {
     @NotNull(message = Constants.NOT_BLANK)
     @Size(max = 25, message = "Must be a maximum of 45 characters")
     @Pattern(
-            regexp = "^[0-9]*$",
+            regexp = "^\\d+$",
             message = "Solo se permiten números"
     )
     private String identificationNumber;
@@ -39,7 +39,7 @@ public class UserSaveDTOInput implements IDTOEntity {
     @NotNull(message = Constants.NOT_BLANK)
     @Size(max = 45, message = "Must be a maximum of 45 characters")
     @Pattern(
-            regexp = "^[0-9]*$",
+            regexp = "^\\d+$",
             message = "Solo se permiten números"
     )
     private String phoneNumber;
@@ -60,7 +60,7 @@ public class UserSaveDTOInput implements IDTOEntity {
     @NotBlank(message = Constants.NOT_BLANK)
     @Size(min = 8, max = 64, message = "La contraseña debe tener entre 8 y 64 caracteres")
     @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.])[A-Za-z\\d@$!%*?&.]{8,}$",
             message = "La contraseña debe tener al menos una letra mayúscula, una minúscula, un número y un carácter especial"
     )
     private String password;
