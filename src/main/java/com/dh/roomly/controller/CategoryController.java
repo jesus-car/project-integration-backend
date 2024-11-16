@@ -40,4 +40,20 @@ public class CategoryController {
         CategoryDTOOutput categoryDTOOutput = categoryService.createCategory(categoryDTOInput, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryDTOOutput);
     }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CategoryDTOOutput> updateCategory(@PathVariable Short id,
+                                                            @RequestPart CategoryDTOInput categoryDTOInput,
+                                                            @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
+        CategoryDTOOutput updatedCategory = categoryService.updateCategory(id, categoryDTOInput, image);
+        return ResponseEntity.ok(updatedCategory);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Short id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

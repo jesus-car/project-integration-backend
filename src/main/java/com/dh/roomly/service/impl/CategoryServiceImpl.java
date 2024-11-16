@@ -41,7 +41,7 @@ public class CategoryServiceImpl implements ICategoryService {
                     CategoryDTOOutput categoryDTOOutput = (CategoryDTOOutput) MappingDTO.convertToDto(category, new CategoryDTOOutput());
                     return setUrlToDTO(category, categoryDTOOutput);
                 })
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -69,4 +69,37 @@ public class CategoryServiceImpl implements ICategoryService {
         }
         return categoryDTOOutput;
     }
+
+    @Override
+    public CategoryDTOOutput updateCategory(Short id, CategoryDTOInput categoryDTOInput, MultipartFile image) throws IOException {
+        CategoryEntity categoryEntity = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
+
+        if (categoryRepository.existsByTitleAndIdNot(categoryDTOInput.getTitle(), id)) {
+            throw new DuplicateResourceException("Category with title: " + categoryDTOInput.getTitle() + " already exists");
+        }
+
+        // Actualizar los campos básicos del DTO
+        categoryEntity.setTitle(categoryDTOInput.getTitle());
+        categoryEntity.setDescription(categoryDTOInput.getDescription());
+
+        // Si se proporciona una nueva imagen, actualizarla
+        if (image != null && !image.isEmpty()) {
+            FileEntity fileEntity = fileService.uploadFile(image);
+            categoryEntity.setFile(fileEntity);
+        }
+
+        CategoryEntity updatedCategory = categoryRepository.save(categoryEntity);
+        CategoryDTOOutput categoryDTOOutput = (CategoryDTOOutput) MappingDTO.convertToDto(updatedCategory, new CategoryDTOOutput());
+        return setUrlToDTO(updatedCategory, categoryDTOOutput);
+    }
+
+    @Override
+    public void deleteCategory(Short id) {
+        CategoryEntity categoryEntity = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
+        categoryRepository.delete(categoryEntity);
+    }
+
+
 }
