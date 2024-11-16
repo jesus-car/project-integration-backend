@@ -13,4 +13,8 @@ public interface ICategoryService {
     List<CategoryDTOOutput> findAllCategories();
 
     CategoryDTOOutput createCategory(CategoryDTOInput categoryDTOInput, MultipartFile image) throws IOException;
+
+    CategoryDTOOutput updateCategory(Short id, CategoryDTOInput categoryDTOInput, MultipartFile image) throws IOException;
+
+    void deleteCategory(Short id);
 }

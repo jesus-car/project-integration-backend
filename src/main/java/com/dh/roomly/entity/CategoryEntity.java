@@ -26,6 +26,4 @@ public class CategoryEntity {
     @OneToOne
     @JoinColumn(name = "FILE_ID", referencedColumnName = "id")
     private FileEntity file;
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PropertyEntity> properties;
 }

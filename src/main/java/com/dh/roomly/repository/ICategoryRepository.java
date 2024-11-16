@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ICategoryRepository extends JpaRepository<CategoryEntity, Short> {
     boolean existsByTitle(String title);
+    boolean existsByTitleAndIdNot(String title, Short id);
 }
