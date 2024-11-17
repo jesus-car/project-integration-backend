@@ -8,6 +8,7 @@ import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.exception.DuplicateResourceException;
 import com.dh.roomly.exception.ResourceNotFoundException;
 import com.dh.roomly.repository.ICategoryRepository;
+import com.dh.roomly.repository.IPropertyRepository;
 import com.dh.roomly.service.ICategoryService;
 import com.dh.roomly.service.IFileService;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     private final ICategoryRepository categoryRepository;
     private final IFileService fileService;
+    private  final IPropertyRepository propertyRepository;
 
     @Override
     public CategoryDTOOutput findCategoryById(Short id) {
@@ -98,8 +100,11 @@ public class CategoryServiceImpl implements ICategoryService {
     public void deleteCategory(Short id) {
         CategoryEntity categoryEntity = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
+
+        boolean isCategoryInUse = propertyRepository.existsByCategoryId(id);
+        if (isCategoryInUse) {
+            throw new IllegalStateException("No se puede eliminar la categoría porque está asociada a una o más propiedades.");
+        }
         categoryRepository.delete(categoryEntity);
     }
-
-
 }
