@@ -209,6 +209,10 @@ public class PropertyService implements IPropertyService {
                         propertyDTO.setMainPhotoUrl(mapUrlToFileEntity(property.getMainPhoto())); // Asignar la URL de la imagen principal
                     }
 
+                    if (property.getCategory() != null) {
+                        propertyDTO.setCategoryId(property.getCategory().getId());
+                    }
+
                     // Inicializa la lista de fotos para evitar LazyInitializationException
                     if (property.getPhotos() != null && !property.getPhotos().isEmpty()) {
                         // Esto fuerza la carga de la colección de fotos

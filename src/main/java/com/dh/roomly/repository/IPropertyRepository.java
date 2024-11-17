@@ -15,4 +15,5 @@ public interface IPropertyRepository extends JpaRepository<PropertyEntity, Strin
 
     @Query("SELECT p FROM PropertyEntity p JOIN FETCH p.owner WHERE p.id = :id")
     Optional<PropertyEntity> findByIdWithOwner(@Param("id") Long id);
+    boolean existsByCategoryId(Short categoryId);
 }
