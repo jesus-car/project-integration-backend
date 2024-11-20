@@ -1,9 +1,12 @@
 package com.dh.roomly.repository.specification;
 
 import com.dh.roomly.entity.PropertyEntity;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -71,4 +74,24 @@ public class PropertySpecification {
         return (root, query, builder) ->
                 (Objects.isNull(ids) || ids.isEmpty()) ? null : builder.in(root.get("categoryId")).value(ids);
     }
+
+    public static Specification<PropertyEntity> bookingsDateBetween(LocalDate startDate, LocalDate endDate) {
+        return (root, query, builder) -> {
+            if (Objects.isNull(startDate) && Objects.isNull(endDate)) {
+                return null;
+            }
+            Join<Object, Object> bookings = root.join("bookings", JoinType.LEFT);
+            if (Objects.isNull(startDate)) {
+                return builder.lessThanOrEqualTo(bookings.get("endDate"), endDate);
+            }
+            if (Objects.isNull(endDate)) {
+                return builder.greaterThanOrEqualTo(bookings.get("startDate"), startDate);
+            }
+            return builder.and(
+                    builder.greaterThanOrEqualTo(bookings.get("startDate"), startDate),
+                    builder.lessThanOrEqualTo(bookings.get("endDate"), endDate)
+            );
+        };
+    }
+
 }

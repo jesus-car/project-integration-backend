@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -30,4 +31,6 @@ public class PropertyFilterDTO{
     private Long ownerId;
     private Short categoryId;
     private List<Short> categoryIds;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }
