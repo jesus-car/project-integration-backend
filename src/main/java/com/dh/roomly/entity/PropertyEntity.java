@@ -1,5 +1,6 @@
 package com.dh.roomly.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -89,7 +90,4 @@ public class PropertyEntity {
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<BookingEntity> bookings;
-
-    @ManyToMany(mappedBy = "favoriteProperties", fetch = FetchType.EAGER)
-    private List<UserEntity> favoritedByUsers = new ArrayList<>();
 }
