@@ -89,4 +89,7 @@ public class PropertyEntity {
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<BookingEntity> bookings;
+
+    @ManyToMany(mappedBy = "favoriteProperties", fetch = FetchType.EAGER)
+    private List<UserEntity> favoritedByUsers = new ArrayList<>();
 }
