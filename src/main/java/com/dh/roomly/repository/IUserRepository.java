@@ -16,5 +16,5 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("SELECT p.id FROM UserEntity u JOIN u.favoriteProperties p WHERE u.id = :userId")
     List<Long> findFavoriteProductIdsByUserId(@Param("userId") Long userId);
-    UserEntity findByUsername(String username);
+    Optional<UserEntity> findByUsername(String username);
 }

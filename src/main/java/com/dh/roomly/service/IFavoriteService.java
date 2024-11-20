@@ -8,8 +8,4 @@ public interface IFavoriteService {
     void addFavoriteProperty(Long userId, Long propertyId);
     void removeFavoriteProperty(Long userId, Long propertyId);
     List<PropertyDTOOutput> getFavoriteProperties(Long userId);
-
-    void addFavoritePropertyUserLogged(Long propertyId);
-    void removeFavoritePropertyUserLogged(Long propertyId);
-    List<PropertyDTOOutput> getFavoritePropertiesUserLogged();
 }
