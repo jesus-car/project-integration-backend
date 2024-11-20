@@ -38,9 +38,4 @@ public class AuthController {
     public UserSaveDTOOutput register(@Valid @RequestBody UserSaveDTOInput userSaveDTOInput) {
         return userService.register(userSaveDTOInput);
     }
-
-    @GetMapping("/current-user")
-    public UserEntity getCurrentUser() {
-        return userService.getCurrentUser();
-    }
 }
