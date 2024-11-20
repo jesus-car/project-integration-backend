@@ -86,4 +86,7 @@ public class PropertyEntity {
             inverseJoinColumns = @JoinColumn(name = "feature_id")
     )
     private List<FeatureEntity> features = new ArrayList<>();
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingEntity> bookings;
 }

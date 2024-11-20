@@ -368,6 +368,9 @@ public class PropertyService implements IPropertyService {
         if (Objects.nonNull(filter.getCategoryIds())) {
             spec = spec.and(PropertySpecification.categoryIn(filter.getCategoryIds()));
         }
+        if (Objects.nonNull(filter.getStartDate()) || Objects.nonNull(filter.getEndDate())){
+            spec = spec.and(PropertySpecification.bookingsDateBetween(filter.getStartDate(), filter.getEndDate()));
+        }
         spec = addPriceFilters(filter, spec);
         spec = addNumBedsFilters(filter, spec);
         spec = addNumBathroomsFilters(filter, spec);
