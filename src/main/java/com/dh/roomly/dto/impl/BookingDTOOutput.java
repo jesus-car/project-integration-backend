@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingDTOOutput implements IDTOEntity {
+    private Long userId;
+    private Long propertyId;
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal totalPrice;

@@ -1,0 +1,28 @@
+package com.dh.roomly.service.impl;
+
+import com.dh.roomly.dto.common.MappingDTO;
+import com.dh.roomly.dto.impl.BookingDTOInput;
+import com.dh.roomly.dto.impl.BookingDTOOutput;
+import com.dh.roomly.entity.BookingEntity;
+import com.dh.roomly.repository.IBookingRepository;
+import com.dh.roomly.service.IBookingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class BookingServiceImpl implements IBookingService {
+    @Autowired
+    IBookingRepository iBookingRepository;
+
+    @Override
+    public BookingDTOOutput create(BookingDTOInput bookingDTOInput) {
+        bookingDTOInput.setDate(LocalDateTime.now());
+        bookingDTOInput.setStatus(BookingEntity.Status.CONFIRMED);
+        BookingEntity saved =
+                iBookingRepository.save(
+                        (BookingEntity) MappingDTO.convertToEntity(bookingDTOInput, BookingEntity.class));
+        return (BookingDTOOutput) MappingDTO.convertToDto(saved, new BookingDTOOutput());
+    }
+}
