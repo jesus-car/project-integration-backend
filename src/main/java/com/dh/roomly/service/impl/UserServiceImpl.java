@@ -8,18 +8,23 @@ import com.dh.roomly.entity.FileEntity;
 import com.dh.roomly.entity.RoleEntity;
 import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.exception.ResourceNotFoundException;
+import com.dh.roomly.exception.UserNotAuthenticatedException;
 import com.dh.roomly.repository.ICityRepository;
 import com.dh.roomly.repository.IIdTypeRepository;
 import com.dh.roomly.repository.IRoleRepository;
 import com.dh.roomly.repository.IUserRepository;
 import com.dh.roomly.service.IEmailService;
 import com.dh.roomly.service.IFileService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
@@ -234,11 +239,34 @@ public class UserServiceImpl {
     public UserEntity getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if ( authentication == null || !authentication.isAuthenticated() ) {
-            throw new IllegalArgumentException("User not authenticated");
+            throw new IllegalArgumentException("Usuario no autenticado");
         }
         String username = authentication.getName();
 
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
+    }
+
+    public UserEntity getUserFromToken(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new UserNotAuthenticatedException("Token nulo o no comienza con 'Bearer'");
+        }
+
+        token = token.substring(7);
+
+        try {
+            // Extrae el nombre de usuario del token usando el servicio JWT
+            String username = jwtService.getUsernameFromToken(token);
+
+            // Busca al usuario en el repositorio
+            return userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UserNotAuthenticatedException("Usuario no encontrado con el token proporcionado"));
+        } catch (MalformedJwtException e) {
+            throw new UserNotAuthenticatedException("El token está malformado: " + e.getMessage());
+        } catch (ExpiredJwtException e) {
+            throw new UserNotAuthenticatedException("El token ha expirado: " + e.getMessage());
+        } catch (Exception e) {
+            throw new UserNotAuthenticatedException("Error al procesar el token: " + e.getMessage());
+        }
     }
 }
