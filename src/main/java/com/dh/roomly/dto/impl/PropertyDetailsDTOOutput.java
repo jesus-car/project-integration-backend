@@ -34,4 +34,5 @@ public class PropertyDetailsDTOOutput implements IDTOEntity {
     private List<FeatureDTOOutput> features;
     private String mainPhotoUrl;
     private List<String> photoUrls;
+    private List<BookingDTOOutput> bookings;
 }
