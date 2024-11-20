@@ -24,6 +24,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -228,5 +229,16 @@ public class UserServiceImpl {
                 .message("Token refreshed successfully")
                 .refreshToken(newRefreshToken)
                 .build();
+    }
+
+    public UserEntity getCurrentUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if ( authentication == null || !authentication.isAuthenticated() ) {
+            throw new IllegalArgumentException("User not authenticated");
+        }
+        String username = authentication.getName();
+
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
     }
 }
