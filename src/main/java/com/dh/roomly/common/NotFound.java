@@ -1,9 +1,9 @@
 package com.dh.roomly.common;
 
 public enum NotFound {
-    NOT_FOUND_PRODUCT("Property not found."),
-    NOT_FOUND_USER("User not found."),
-    NOT_FOUND_BOOKING("Booking not found.");
+    NOT_FOUND_PRODUCT("Propiedad no encontrada"),
+    NOT_FOUND_USER("Usuario no encontrado"),
+    NOT_FOUND_BOOKING("Booking no encontrado");
 
 
     private final String notFoundMessage;
