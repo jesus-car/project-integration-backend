@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BookingServiceImpl implements IBookingService {
@@ -23,6 +25,22 @@ public class BookingServiceImpl implements IBookingService {
         BookingEntity saved =
                 iBookingRepository.save(
                         (BookingEntity) MappingDTO.convertToEntity(bookingDTOInput, BookingEntity.class));
-        return (BookingDTOOutput) MappingDTO.convertToDto(saved, new BookingDTOOutput());
+        BookingDTOOutput bookingDTOOutput = (BookingDTOOutput) MappingDTO.convertToDto(saved, new BookingDTOOutput());
+        bookingDTOOutput.setPropertyId(saved.getPropertyId());
+        bookingDTOOutput.setUserId(saved.getUserId());
+        return  bookingDTOOutput;
+    }
+
+    @Override
+    public List<BookingDTOOutput> findByUserId(Long id) {
+        List<BookingEntity> bookingEntities = iBookingRepository.findByUserId(id);
+        List<BookingDTOOutput> bookingDTOOutputs = new ArrayList<>();
+        bookingEntities.forEach(bookingEntity -> {
+            BookingDTOOutput bookingDTOOutput = (BookingDTOOutput) MappingDTO.convertToDto(bookingEntity, new BookingDTOOutput());
+            bookingDTOOutput.setPropertyId(bookingEntity.getPropertyId());
+            bookingDTOOutput.setUserId(bookingEntity.getUserId());
+            bookingDTOOutputs.add(bookingDTOOutput);
+        });
+        return bookingDTOOutputs;
     }
 }
