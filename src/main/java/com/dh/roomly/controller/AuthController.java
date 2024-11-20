@@ -4,11 +4,13 @@ import com.dh.roomly.dto.impl.UserAuthDTOInput;
 import com.dh.roomly.dto.impl.UserAuthDTOOutput;
 import com.dh.roomly.dto.impl.UserSaveDTOInput;
 import com.dh.roomly.dto.impl.UserSaveDTOOutput;
+import com.dh.roomly.entity.UserEntity;
 import com.dh.roomly.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +37,10 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserSaveDTOOutput register(@Valid @RequestBody UserSaveDTOInput userSaveDTOInput) {
         return userService.register(userSaveDTOInput);
+    }
+
+    @GetMapping("/current-user")
+    public UserEntity getCurrentUser() {
+        return userService.getCurrentUser();
     }
 }
