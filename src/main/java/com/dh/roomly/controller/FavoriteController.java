@@ -8,6 +8,7 @@ import com.dh.roomly.service.IFavoriteService;
 import com.dh.roomly.service.impl.JwtService;
 import com.dh.roomly.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,7 @@ public class FavoriteController {
     @Operation(summary = "Agregar la propiedad a los favoritos del usuario autenticado")
     public ResponseEntity<String> addFavoriteUserLogged(
             @PathVariable Long propertyId,
+            @Parameter(hidden = true)
             @RequestHeader("Authorization") String token
     ) {
         UserEntity user = userServiceImpl.getUserFromToken(token);
@@ -65,6 +67,7 @@ public class FavoriteController {
     @Operation(summary = "Remover la propiedad de los favoritos del usuario autenticado")
     public ResponseEntity<String> removeFavoriteUserLogged(
             @PathVariable Long propertyId,
+            @Parameter(hidden = true)
             @RequestHeader("Authorization") String token
     ) {
         UserEntity user = userServiceImpl.getUserFromToken(token);
@@ -74,7 +77,7 @@ public class FavoriteController {
 
     @GetMapping("/all")
     @Operation(summary = "Listar las propiedades favoritas del usuario autenticado")
-    public ResponseEntity<?> getFavoritesUserLogged(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getFavoritesUserLogged(@Parameter(hidden = true) @RequestHeader("Authorization") String token) {
         try {
             UserEntity user = userServiceImpl.getUserFromToken(token);
             return ResponseEntity.ok(favoriteService.getFavoriteProperties(user.getId()));
