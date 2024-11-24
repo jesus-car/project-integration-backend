@@ -6,6 +6,7 @@ import com.dh.roomly.dto.impl.BookingDTOOutput;
 import com.dh.roomly.entity.BookingEntity;
 import com.dh.roomly.repository.IBookingRepository;
 import com.dh.roomly.service.IBookingService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
+    @Transactional
     public List<BookingDTOOutput> findByUserId(Long id) {
         List<BookingEntity> bookingEntities = iBookingRepository.findByUserId(id);
         List<BookingDTOOutput> bookingDTOOutputs = new ArrayList<>();
