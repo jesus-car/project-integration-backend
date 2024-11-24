@@ -89,8 +89,8 @@ public class UserEntity implements UserDetails {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_favorite",
-            joinColumns = @JoinColumn(name = "USER_ID"),
-            inverseJoinColumns = @JoinColumn(name = "PROPERTY_ID")
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "property_id")
     )
     private List<PropertyEntity> favoriteProperties = new ArrayList<>();
 }
