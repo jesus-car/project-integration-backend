@@ -1,7 +1,6 @@
 package com.dh.roomly.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +32,7 @@ public class ReviewEntity {
     private PropertyEntity property;
 
     @Column(name = "RATING", nullable = false)
-    private byte rating;
+    private Byte rating;
 
     @Column(name = "COMMENT")
     private String comment;

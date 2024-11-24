@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,9 @@ public class PropertyService implements IPropertyService {
         propertyDTO.setBookings(propertyDTO.getBookings().stream().filter(bookingDTOOutput ->
                 bookingDTOOutput.getEndDate().isAfter(today.toLocalDate())
                         || bookingDTOOutput.getEndDate().isEqual(today.toLocalDate())).toList());
+
+        propertyDTO.setAverageRating(this.getAverageRating(
+                property.getReviews().stream().map(ReviewEntity::getRating).toList()));
 
         return propertyDTO;
     }
@@ -303,6 +307,16 @@ public class PropertyService implements IPropertyService {
         return dtoOutput;
     }
 
+    private String getAverageRating(List<Byte> ratings){
+        double average = ratings.stream()
+                .filter(Objects::nonNull)
+                .mapToInt(Byte::byteValue)
+                .average()
+                .orElse(0.0);
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(average);
+    }
+    
     private void handlePropertyImages(PropertyEntity property, List<MultipartFile> images,
                                       MultipartFile mainImage, String mainImageUrl, List<String> imageUrls) throws IOException {
         // Manejo de imagen principal (se envía en bytes o URL)
