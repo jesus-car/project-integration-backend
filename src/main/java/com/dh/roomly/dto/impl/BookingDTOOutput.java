@@ -24,4 +24,5 @@ public class BookingDTOOutput implements IDTOEntity {
     private Byte numGuest;
     private BookingEntity.Status status;
     private LocalDateTime date;
+    private PropertyDTOOutput property;
 }
