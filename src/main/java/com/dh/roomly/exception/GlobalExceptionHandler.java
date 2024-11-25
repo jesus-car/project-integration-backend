@@ -2,8 +2,10 @@ package com.dh.roomly.exception;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import io.jsonwebtoken.security.SignatureException;
 
 import com.dh.roomly.dto.common.ErrorDetailsDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
