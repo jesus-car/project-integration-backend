@@ -4,13 +4,11 @@ import com.dh.roomly.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.dh.roomly.common.JwtTokenConfig.SECRET_KEY;
 
@@ -55,16 +53,10 @@ public class JwtService {
         return claims.get("email", String.class);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) );
-    }
-
     public boolean isRefreshTokenValid(String refreshToken, UserEntity user) {
         final String username = getUsernameFromToken(refreshToken);
 
-        return (username.equals(user.getUsername()) && !isTokenExpired(refreshToken) );
+        return (username.equals(user.getUsername()));
     }
 
     private Claims getAllClaims(String token) {
@@ -75,18 +67,4 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
-
-    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Date getExpiration(String token) {
-        return getClaim(token, Claims::getExpiration);
-    }
-
-    private boolean isTokenExpired(String token) {
-        return getExpiration(token).before(new Date());
-    }
-
 }
