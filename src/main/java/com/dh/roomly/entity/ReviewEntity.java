@@ -23,12 +23,12 @@ public class ReviewEntity {
 
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "USER_ID", referencedColumnName = "ID", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UserEntity user;
 
     @ManyToOne
     @MapsId("propertyId")
-    @JoinColumn(name = "PROPERTY_ID", referencedColumnName = "ID", insertable = false, updatable = false)
+    @JoinColumn(name = "property_id", referencedColumnName = "id", insertable = false, updatable = false)
     private PropertyEntity property;
 
     @Column(name = "RATING", nullable = false)
