@@ -24,4 +24,6 @@ public class CityDTO implements IDTOEntity {
     private String name;
 
     private Short countryId;
+
+    private CountrySimpleDTO country;
 }

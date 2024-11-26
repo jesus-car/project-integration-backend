@@ -30,4 +30,5 @@ public class PropertyDTOOutput implements IDTOEntity {
     private List<Short> featureIds;
     private String mainPhotoUrl;
     private List<String> photoUrls;
+    private CityDTO city;
 }
