@@ -16,6 +16,7 @@ import static com.dh.roomly.common.JwtTokenConfig.SECRET_KEY;
 @RequiredArgsConstructor
 public class JwtService {
 
+
     public String generateAccessToken(UserEntity user) {
         return generateToken(getExtraClaims(user), user, new Date(System.currentTimeMillis() + 3600000));
     }
