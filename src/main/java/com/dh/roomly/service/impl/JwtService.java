@@ -17,16 +17,12 @@ import static com.dh.roomly.common.JwtTokenConfig.SECRET_KEY;
 public class JwtService {
 
 
-    private static final Date DATE_EXPIRATION = new Date(System.currentTimeMillis() + 36000000);
-    private static final Date DATE_EXPIRATION_REFRESH = new Date(System.currentTimeMillis() + 36000000*24);
-
-
     public String generateAccessToken(UserEntity user) {
-        return generateToken(getExtraClaims(user), user, DATE_EXPIRATION);
+        return generateToken(getExtraClaims(user), user, new Date(System.currentTimeMillis() + 3600000));
     }
 
     public String generateRefreshToken(UserEntity user) {
-        return generateToken(getExtraClaims(user), user, DATE_EXPIRATION_REFRESH);
+        return generateToken(getExtraClaims(user), user,  new Date(System.currentTimeMillis() + 3600000*24));
     }
 
     private Map<String, Object> getExtraClaims(UserEntity user) {
