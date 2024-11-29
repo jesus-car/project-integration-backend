@@ -36,4 +36,6 @@ public class PropertyDetailsDTOOutput implements IDTOEntity {
     private List<String> photoUrls;
     private List<BookingDTOOutput> bookings;
     private String averageRating;
+    private Long totalRatings;
+    private List<ReviewDetailsDTOOutput> reviews;
 }

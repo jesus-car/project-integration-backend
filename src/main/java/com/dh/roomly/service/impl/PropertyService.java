@@ -78,6 +78,16 @@ public class PropertyService implements IPropertyService {
         propertyDTO.setAverageRating(this.getAverageRating(
                 property.getReviews().stream().map(ReviewEntity::getRating).toList()));
 
+        propertyDTO.setTotalRatings((long) property.getReviews().size());
+
+        propertyDTO.setReviews(property.getReviews().stream()
+                .map(review -> {
+                    ReviewDetailsDTOOutput reviewDTO = (ReviewDetailsDTOOutput) MappingDTO.convertToDto(review, new ReviewDetailsDTOOutput());
+                    reviewDTO.setUsername(review.getUser().getUsername());
+                    return reviewDTO;
+                })
+                .toList()
+        );
         return propertyDTO;
     }
 
