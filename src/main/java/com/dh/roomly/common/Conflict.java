@@ -3,7 +3,8 @@ package com.dh.roomly.common;
 public enum Conflict {
     GENERIC_PRODUCT_CONFLICT("There is a conflict with the property."),
     GENERIC_USER_CONFLICT("There is a conflict with the user."),
-    GENERIC_BOOKING_CONFLICT("There is a conflict with the booking.");
+    GENERIC_BOOKING_CONFLICT("There is a conflict with the booking."),
+    DATE_BOOKING_CONFLICT("Error al reservar con ese rango de fechas.");
 
     private final String conflictMessage;
 
