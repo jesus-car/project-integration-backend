@@ -236,17 +236,6 @@ public class UserServiceImpl {
                 .build();
     }
 
-    public UserEntity getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ( authentication == null || !authentication.isAuthenticated() ) {
-            throw new IllegalArgumentException("Usuario no autenticado");
-        }
-        String username = authentication.getName();
-
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
-    }
-
     public UserEntity getUserFromToken(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new UserNotAuthenticatedException("Token nulo o no comienza con 'Bearer'");
@@ -268,5 +257,9 @@ public class UserServiceImpl {
         } catch (Exception e) {
             throw new UserNotAuthenticatedException("Error al procesar el token: " + e.getMessage());
         }
+    }
+
+    public UserEntity finUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_NOT_FOUND));
     }
 }

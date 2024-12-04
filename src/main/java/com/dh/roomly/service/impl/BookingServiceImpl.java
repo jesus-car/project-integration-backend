@@ -6,6 +6,7 @@ import com.dh.roomly.dto.impl.BookingDTOOutput;
 import com.dh.roomly.entity.BookingEntity;
 import com.dh.roomly.repository.IBookingRepository;
 import com.dh.roomly.service.IBookingService;
+import com.dh.roomly.service.IEmailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,12 @@ public class BookingServiceImpl implements IBookingService {
     @Autowired
     IBookingRepository iBookingRepository;
 
+    @Autowired
+    IEmailService emailService;
+
+    @Autowired
+    UserServiceImpl userService;
+
     @Override
     public BookingDTOOutput create(BookingDTOInput bookingDTOInput) {
         bookingDTOInput.setDate(LocalDateTime.now());
@@ -29,6 +36,8 @@ public class BookingServiceImpl implements IBookingService {
         BookingDTOOutput bookingDTOOutput = (BookingDTOOutput) MappingDTO.convertToDto(saved, new BookingDTOOutput());
         bookingDTOOutput.setPropertyId(saved.getPropertyId());
         bookingDTOOutput.setUserId(saved.getUserId());
+
+        emailService.sendEmail(userService.finUserById(bookingDTOInput.getUserId()).getEmail(), "Reserva realizada", "Reserva realizada con exito");
         return  bookingDTOOutput;
     }
 
