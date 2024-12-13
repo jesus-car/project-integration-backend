@@ -44,7 +44,7 @@ upload:
 
 cors:
   allowed:
-    origins: http://localhost:5173,http://18.205.14.20/,http://alb-inte-dh-2093986721.us-east-1.elb.amazonaws.com
+    origins: http://localhost:5173,http://18.205.14.20/,http://alb-inte-dh-2093986721.us-east-1.elb.amazonaws.com,http://alb-dh-final-int-959577643.us-east-1.elb.amazonaws.com
 
 cloud:
   aws:
